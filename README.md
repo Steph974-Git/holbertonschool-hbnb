@@ -261,13 +261,13 @@ config:
 title: User Registration
 ---
 sequenceDiagram
-    participant Client as User Device
-    participant UserAPI as Registration API
-    participant HBnBFacade as Main Service
-    participant UserModel as User Creator
-    participant PasswordService as Password Service
-    participant EmailService as Email Service
-    participant UserRepository as User Database
+    participant Client
+    participant UserAPI
+    participant HBnBFacade
+    participant UserModel
+    participant PasswordService
+    participant EmailService
+    participant UserRepository
     activate Client
     Client->>+UserAPI: Send registration data (POST /register)
     activate UserAPI
@@ -305,14 +305,14 @@ config:
 title : Place Creation
 ---
 sequenceDiagram
-    participant Client as User's Device
-    participant PlaceAPI as API Endpoint
-    participant HBnBFacade as Main Service
-    participant UserModel as User Database
-    participant PlaceModel as Place Creator
-    participant LocationService as Address Checker
-    participant AmenityRepository as Amenities List 
-    participant PlaceRepository as Place Storage
+    participant Client
+    participant PlaceAPI
+    participant HBnBFacade
+    participant UserModel
+    participant PlaceModel
+    participant LocationService
+    participant AmenityRepository
+    participant PlaceRepository
     activate Client
     Client->>+PlaceAPI: Send place info (POST /places)
     activate PlaceAPI

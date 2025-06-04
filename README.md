@@ -269,30 +269,30 @@ sequenceDiagram
     participant EmailService
     participant UserRepository
     activate Client
-    Client->>+UserAPI: Send registration data (POST /register)
+    Client->>+UserAPI: Send sign-up information
     activate UserAPI
-    UserAPI->>UserAPI: Verify request format
-    Note over UserAPI: Checking mandatory fields
-    UserAPI->>+HBnBFacade: Request user registration
+    UserAPI->>UserAPI: Check if form is complete
+    Note over UserAPI: Make sure all required fields are filled
+    UserAPI->>+HBnBFacade: Process this registration
     activate HBnBFacade
-    HBnBFacade->>HBnBFacade: Verify business rules
-    Note over HBnBFacade: System rules verification
-    HBnBFacade->>UserRepository: Find user by email
-    UserRepository-->>HBnBFacade: User (null if not exists)
+    HBnBFacade->>HBnBFacade: Check if information is valid
+    Note over HBnBFacade: Verify age, password strength, etc.
+    HBnBFacade->>UserRepository: Is this email already used?
+    UserRepository-->>HBnBFacade: Email status (used or available)
     alt Email already used
-        HBnBFacade-->>UserAPI: Error: email already registered
-        UserAPI-->>Client: Error 409: Conflict (details)
+        HBnBFacade-->>UserAPI: Someone already has this email
+        UserAPI-->>Client: Error: Please use a different email
     else Email available
-        HBnBFacade->>+PasswordService: Secure the password
-        PasswordService-->>-HBnBFacade: Hashed password
-        HBnBFacade->>+UserModel: Create user with data
-        UserModel->>+UserRepository: Save user
-        UserRepository-->>-UserModel: Saved user with ID
-        UserModel-->>-HBnBFacade: Created user
-        HBnBFacade->>+EmailService: Send verification email
-        EmailService-->>-HBnBFacade: Email sending status
-        HBnBFacade-->>-UserAPI: Created user object
-        UserAPI-->>-Client: Success 201: User created (details)
+        HBnBFacade->>+PasswordService: Make password secure
+        PasswordService-->>-HBnBFacade: Protected password
+        HBnBFacade->>+UserModel: Create new account
+        UserModel->>+UserRepository: Save this account
+        UserRepository-->>-UserModel: Account saved successfully
+        UserModel-->>-HBnBFacade: Account is now created
+        HBnBFacade->>+EmailService: Send welcome email
+        EmailService-->>-HBnBFacade: Email sent
+        HBnBFacade-->>-UserAPI: Account is ready
+        UserAPI-->>-Client: Success: Your account is created!
     end
     deactivate Client
 ```
@@ -313,44 +313,97 @@ sequenceDiagram
     participant LocationService
     participant AmenityRepository
     participant PlaceRepository
+    
     activate Client
-    Client->>+PlaceAPI: Send place info (POST /places)
+    Client->>+PlaceAPI: Submit new property listing
     activate PlaceAPI
-    PlaceAPI->>PlaceAPI: Check if request has required info
-    Note over PlaceAPI: Makes sure all needed fields are present
-    PlaceAPI->>+HBnBFacade: Ask to create place with user ID
+    PlaceAPI->>PlaceAPI: Check if listing is complete
+    Note over PlaceAPI: Make sure all required fields are filled
+    PlaceAPI->>+HBnBFacade: Create this property listing
     activate HBnBFacade
-    HBnBFacade->>+UserModel: Check if user exists
-    UserModel-->>-HBnBFacade: Return user info or error
-    alt User not allowed
-        HBnBFacade-->>PlaceAPI: User can't do this
-        PlaceAPI-->>Client: Error 403: Not allowed
-    else User allowed
-        HBnBFacade->>HBnBFacade: Check if place info is valid
-        Note over HBnBFacade: Check price, description is good, etc.
-        HBnBFacade->>+LocationService: Check if address is real
-        LocationService-->>-HBnBFacade: Return verified location
-        HBnBFacade->>+AmenityRepository: Get amenities by IDs
-        AmenityRepository-->>-HBnBFacade: Return list of amenities
-        alt Location or amenities not valid
-            HBnBFacade-->>PlaceAPI: Something is wrong with the data
-            PlaceAPI-->>Client: Error 400: Bad data (with details)
-        else Everything is valid
-            HBnBFacade->>+PlaceModel: Create new place with data
-            PlaceModel->>+PlaceRepository: Save place to database
-            PlaceRepository-->>-PlaceModel: Return saved place with ID
-            PlaceModel-->>-HBnBFacade: Return the created place
-            alt Place has amenities
-                HBnBFacade->>PlaceRepository: Connect amenities to place
-                PlaceRepository-->>HBnBFacade: Confirm connection
+    HBnBFacade->>+UserModel: Can this user add listings?
+    UserModel-->>-HBnBFacade: User status and permissions
+    alt User not permitted
+        HBnBFacade-->>PlaceAPI: User can't add listings
+        PlaceAPI-->>Client: Error: You can't create listings
+    else User permitted
+        HBnBFacade->>HBnBFacade: Check property details
+        Note over HBnBFacade: Verify price, description, photos, etc.
+        HBnBFacade->>+LocationService: Is this address real?
+        LocationService-->>-HBnBFacade: Confirmed address details
+        HBnBFacade->>+AmenityRepository: Get selected amenities
+        AmenityRepository-->>-HBnBFacade: Available amenities
+        alt Address or amenities invalid
+            HBnBFacade-->>PlaceAPI: Property details have problems
+            PlaceAPI-->>Client: Error: Please fix property details
+        else All details valid
+            HBnBFacade->>+PlaceModel: Create new property
+            PlaceModel->>+PlaceRepository: Save this property
+            PlaceRepository-->>-PlaceModel: Property saved with new ID
+            PlaceModel-->>-HBnBFacade: Property successfully created
+            alt Property has amenities
+                HBnBFacade->>PlaceRepository: Add amenities to property
+                PlaceRepository-->>HBnBFacade: Amenities connected
             end
-            HBnBFacade-->>-PlaceAPI: Return created place
-            PlaceAPI->>PlaceAPI: Format the response
-            PlaceAPI-->>-Client: Success 201: Place created (with details)
+            HBnBFacade-->>-PlaceAPI: Property listing complete
+            PlaceAPI->>PlaceAPI: Prepare success message
+            PlaceAPI-->>-Client: Success: Your property is now listed!
         end
     end
     deactivate Client
 ```
+```mermaid
+---
+config:
+  theme: redux-dark-color
+title : Review Submission
+---
+sequenceDiagram
+    participant Client
+    participant ReviewAPI
+    participant HBnBFacade
+    participant UserModel
+    participant PlaceModel
+    participant ReviewModel
+    participant ReviewRepository
+    Client->>+ReviewAPI: Send review for a place
+    activate ReviewAPI
+    ReviewAPI->>ReviewAPI: Check if form is complete
+    Note over ReviewAPI: Make sure rating and comment are provided
+    ReviewAPI->>+HBnBFacade: Process this review
+    activate HBnBFacade
+    HBnBFacade->>+UserModel: Is this a valid user?
+    UserModel-->>-HBnBFacade: User info or not found
+    alt User not valid
+        HBnBFacade-->>ReviewAPI: User can't post reviews
+        ReviewAPI-->>Client: Error: Not allowed to post reviews
+    else User valid
+        HBnBFacade->>+PlaceModel: Does this place exist?
+        PlaceModel-->>-HBnBFacade: Place info or not found
+        alt Place doesn't exist
+            HBnBFacade-->>ReviewAPI: Can't find this place
+            ReviewAPI-->>Client: Error: Place not found
+        else Place exists
+            HBnBFacade->>HBnBFacade: Check review quality
+            Note over HBnBFacade: Is rating 1-5? Is comment long enough?
+            alt Review not good enough
+                HBnBFacade-->>ReviewAPI: Review doesn't meet standards
+                ReviewAPI-->>Client: Error: Please fix your review
+            else Review is good
+                HBnBFacade->>+ReviewModel: Create new review
+                ReviewModel->>+ReviewRepository: Save this review
+                ReviewRepository-->>-ReviewModel: Review saved successfully
+                ReviewModel-->>-HBnBFacade: Review is now created
+                HBnBFacade->>PlaceModel: Update place's average rating
+                PlaceModel-->>HBnBFacade: Rating updated
+                HBnBFacade-->>-ReviewAPI: Review is complete
+                ReviewAPI->>ReviewAPI: Prepare success message
+                ReviewAPI-->>-Client: Success: Your review is published!
+            end
+        end
+    end
+```
+
 
 Recommended examples:
 - Creation of a `Place` by a user

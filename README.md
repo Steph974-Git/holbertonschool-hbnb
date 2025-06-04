@@ -2,20 +2,20 @@
 
 ## 1. Introduction
 
-Ce document technique présente l’architecture du projet **HBnB**, une plateforme de location de logements inspirée d’Airbnb.
+This technical document presents the architecture of the **HBnB** project, a housing rental platform inspired by Airbnb.
 
-Il regroupe l’ensemble des diagrammes UML créés lors des étapes de conception :
-- Le **diagramme de packages** (architecture en couches),
-- Le **diagramme de classes métier** (Business Logic Layer),
-- Les **diagrammes de séquence** illustrant le flux des appels API.
+It brings together all the UML diagrams created during the design phases:
+- The **package diagram** (layered architecture),
+- The **business class diagram** (Business Logic Layer),
+- The **sequence diagrams** illustrating API call flows.
 
-Ce document sert de **référence technique** pour les phases de développement, garantissant clarté, cohérence et maintenabilité du système.
+This document serves as a **technical reference** for the development phases, ensuring clarity, consistency, and maintainability of the system.
 
 ---
 
 ## 2. High-Level Architecture
 
-### 2.1 Diagramme de packages
+### 2.1 Package Diagram
 
 ```mermaid
 
@@ -28,7 +28,7 @@ title: High-Level Package Diagram
 ---
 classDiagram
 direction TB
-	namespace PresentationLayer {
+    namespace PresentationLayer {
         class UserAPI {
             +register(userData)
             +login(credentials)
@@ -51,8 +51,8 @@ direction TB
             +confirmBooking(bookingId)
             +cancelBooking(bookingId)
         }
-	}
-	namespace BusinessLogicLayer {
+    }
+    namespace BusinessLogicLayer {
         class HBnBFacade {
             +registerUser(data)
             +authenticateUser(credentials)
@@ -96,8 +96,8 @@ direction TB
             -icon: String
             +validate()
         }
-	}
-	namespace PersistenceLayer {
+    }
+    namespace PersistenceLayer {
         class UserRepository {
             +findByEmail(email)
             +findByName(name)
@@ -115,7 +115,7 @@ direction TB
         class AmenityRepository {
             +findByCategory(category)
         }
-	}
+    }
     UserAPI --> HBnBFacade : use
     PlaceAPI --> HBnBFacade : use
     ReviewAPI --> HBnBFacade : use
@@ -130,21 +130,21 @@ direction TB
     Amenity --> AmenityRepository : access data
 ```
 
-### 2.2 Description de l’architecture en couches
+### 2.2 Description of the Layered Architecture
 
-Le système est basé sur une architecture en couches :
+The system is based on a layered architecture:
 
-- **Couche API (Interface)** : gère les requêtes REST, agit comme façade.
-- **Couche Logique Métier** : contient les règles métier (création d’utilisateurs, d’avis, etc.)
-- **Couche de Stockage** : interaction avec les fichiers ou la base de données.
+- **API Layer (Interface)**: handles REST requests, acts as a facade.
+- **Business Logic Layer**: contains business rules (user creation, reviews, etc.)
+- **Storage Layer**: interaction with files or database.
 
-Cette séparation permet une bonne **modularité**, **testabilité** et **maintenabilité** du code.
+This separation allows for good **modularity**, **testability**, and **maintainability** of the code.
 
 ---
 
 ## 3. Business Logic Layer
 
-### 3.1 Diagramme de classes métier
+### 3.1 Business Class Diagram
 
 ```mermaid
 
@@ -157,51 +157,51 @@ title: Business Logic Layer
 classDiagram
 direction TB
     class Base {
-	    +UUID id
-	    +created_at
-	    +updated_at
+        +UUID id
+        +created_at
+        +updated_at
     }
     class UserModel {
-	    +str first_name
-	    +str last_name
-	    +str email
-	    -str password
-	    +bool is_admin
-	    +register()
-	    +update_profile()
-	    +delete()
+        +str first_name
+        +str last_name
+        +str email
+        -str password
+        +bool is_admin
+        +register()
+        +update_profile()
+        +delete()
     }
     class PlaceModel {
-	    +str title
-	    +str description
-	    +float price
-	    +float latitude
-	    +float longitude
-	    +create()
-	    +update()
-	    +delete()
+        +str title
+        +str description
+        +float price
+        +float latitude
+        +float longitude
+        +create()
+        +update()
+        +delete()
     }
     class AmenityModel {
-	    +str name
-	    +str description
-	    +create()
-	    +update()
-	    +delete()
+        +str name
+        +str description
+        +create()
+        +update()
+        +delete()
     }
     class ReviewModel {
-	    +int rating
-	    +str comment
-	    +submit()
-	    +edit()
-	    +delete()
+        +int rating
+        +str comment
+        +submit()
+        +edit()
+        +delete()
     }
     class PlaceAmenity {
-	    +UUID id
-	    +UUID place_id
-	    +UUID amenity_id
+        +UUID id
+        +UUID place_id
+        +UUID amenity_id
     }
 
-	<<abstract>> Base
+    <<abstract>> Base
 
     PlaceModel --|> Base
     AmenityModel --|> Base
@@ -213,45 +213,45 @@ direction TB
     PlaceModel "1" *-- "*" PlaceAmenity : manages
 ```
 
-### 3.2 Description des entités et relations
+### 3.2 Description of Entities and Relationships
 
 #### 🔸 Base
-Classe abstraite commune, fournit : `id`, `created_at`, `updated_at`.
+Common abstract class, provides: `id`, `created_at`, `updated_at`.
 
 #### 🔸 User
-Représente un utilisateur :
-- Attributs : `first_name`, `last_name`, `email`, `is_admin`, etc.
-- Méthodes : `register()`, `delete()`, etc.
-- Hérite de `Base`.
-- **Composition** avec `Place` : un `User` possède ses `Place`.
+Represents a user:
+- Attributes: `first_name`, `last_name`, `email`, `is_admin`, etc.
+- Methods: `register()`, `delete()`, etc.
+- Inherits from `Base`.
+- **Composition** with `Place`: a `User` owns their `Place`.
 
 #### 🔸 Place
-Représente un logement publié :
-- Attributs : `title`, `price`, `latitude`, etc.
-- Méthodes : `create()`, `update()`, etc.
-- Composé dans `User`, agrège des `Review`.
+Represents a published accommodation:
+- Attributes: `title`, `price`, `latitude`, etc.
+- Methods: `create()`, `update()`, etc.
+- Composed in `User`, aggregates `Review`.
 
 #### 🔸 Review
-Représente un avis :
-- Attributs : `rating`, `comment`
-- Méthodes : `submit()`, `edit()`
-- Lié à `User` et `Place` via associations simples
+Represents a review:
+- Attributes: `rating`, `comment`
+- Methods: `submit()`, `edit()`
+- Linked to `User` and `Place` via simple associations
 
 #### 🔸 Amenity
-Représente un équipement (Wi-Fi, etc.)
-- Associé via `PlaceAmenity`
-- Vit indépendamment des `Place`
+Represents a facility (Wi-Fi, etc.)
+- Associated via `PlaceAmenity`
+- Exists independently of `Place`
 
 #### 🔸 PlaceAmenity
-Table d’association entre `Place` et `Amenity`
-- **Composé dans `Place`**
-- **Agrégé par `Amenity`**
+Association table between `Place` and `Amenity`
+- **Composed in `Place`**
+- **Aggregated by `Amenity`**
 
 ---
 
 ## 4. API Interaction Flow
 
-### 4.1 Diagrammes de séquence
+### 4.1 Sequence Diagrams
 
 ```mermaid
 ---
@@ -352,31 +352,31 @@ sequenceDiagram
     deactivate Client
 ```
 
-Exemples recommandés :
-- Création d’un `Place` par un utilisateur
-- Écriture d’un `Review`
-- Suppression d’un compte utilisateur
+Recommended examples:
+- Creation of a `Place` by a user
+- Writing a `Review`
+- Deletion of a user account
 
-### 4.2 Explication des scénarios
+### 4.2 Explanation of Scenarios
 
-#### Exemple : Écriture d’un avis
+#### Example: Writing a review
 
-1. L’utilisateur authentifié soumet un avis via l’API.
-2. L’API valide l’authentification et le format.
-3. Le `Review` est créé dans la couche métier.
-4. Le `Review` est lié à l’utilisateur et au logement.
-5. L’objet est sauvegardé en base.
-
----
-
-## 5. Conclusion *(optionnel)*
-
-Ce document constitue la **base de référence** technique du projet HBnB.  
-Il permet de guider la mise en œuvre du système en respectant les règles métier, les interactions entre couches et les contraintes de conception.
+1. The authenticated user submits a review via the API.
+2. The API validates authentication and format.
+3. The `Review` is created in the business layer.
+4. The `Review` is linked to the user and accommodation.
+5. The object is saved in the database.
 
 ---
 
-## 📎 Annexes *(optionnel)*
+## 5. Conclusion
 
-- Liens vers les sources (guides UML, style guides)
-- Références du projet ou outils utilisés (Mermaid, PlantUML, etc.)
+This document constitutes the **technical reference base** for the HBnB project.  
+It guides the implementation of the system while respecting business rules, interactions between layers, and design constraints.
+
+---
+
+## 📎 Appendices
+
+- Links to sources (UML guides, style guides)
+- Project references or tools used (Mermaid, PlantUML, etc.)

@@ -59,7 +59,7 @@ direction TB
             +createPlace(placeData)
             +searchPlaces(criteria)
             +submitReview(reviewData)
-            +createBooking(bookingData
+            +createBooking(bookingData)
         }
         class User {
             -id: String
@@ -253,7 +253,104 @@ Table d’association entre `Place` et `Amenity`
 
 ### 4.1 Diagrammes de séquence
 
-> *(Ajoute ici un ou plusieurs diagrammes de séquence Mermaid ou image illustrant des scénarios typiques)*
+```mermaid
+---
+config:
+  theme: redux-dark-color
+  look: neo
+title: User Registration
+---
+sequenceDiagram
+    participant Client as User Device
+    participant UserAPI as Registration API
+    participant HBnBFacade as Main Service
+    participant UserModel as User Creator
+    participant PasswordService as Password Service
+    participant EmailService as Email Service
+    participant UserRepository as User Database
+    activate Client
+    Client->>+UserAPI: Send registration data (POST /register)
+    activate UserAPI
+    UserAPI->>UserAPI: Verify request format
+    Note over UserAPI: Checking mandatory fields
+    UserAPI->>+HBnBFacade: Request user registration
+    activate HBnBFacade
+    HBnBFacade->>HBnBFacade: Verify business rules
+    Note over HBnBFacade: System rules verification
+    HBnBFacade->>UserRepository: Find user by email
+    UserRepository-->>HBnBFacade: User (null if not exists)
+    alt Email already used
+        HBnBFacade-->>UserAPI: Error: email already registered
+        UserAPI-->>Client: Error 409: Conflict (details)
+    else Email available
+        HBnBFacade->>+PasswordService: Secure the password
+        PasswordService-->>-HBnBFacade: Hashed password
+        HBnBFacade->>+UserModel: Create user with data
+        UserModel->>+UserRepository: Save user
+        UserRepository-->>-UserModel: Saved user with ID
+        UserModel-->>-HBnBFacade: Created user
+        HBnBFacade->>+EmailService: Send verification email
+        EmailService-->>-HBnBFacade: Email sending status
+        HBnBFacade-->>-UserAPI: Created user object
+        UserAPI-->>-Client: Success 201: User created (details)
+    end
+    deactivate Client
+```
+
+```mermaid
+---
+config:
+  theme: redux-dark-color
+  look: neo
+title : Place Creation
+---
+sequenceDiagram
+    participant Client as User's Device
+    participant PlaceAPI as API Endpoint
+    participant HBnBFacade as Main Service
+    participant UserModel as User Database
+    participant PlaceModel as Place Creator
+    participant LocationService as Address Checker
+    participant AmenityRepository as Amenities List 
+    participant PlaceRepository as Place Storage
+    activate Client
+    Client->>+PlaceAPI: Send place info (POST /places)
+    activate PlaceAPI
+    PlaceAPI->>PlaceAPI: Check if request has required info
+    Note over PlaceAPI: Makes sure all needed fields are present
+    PlaceAPI->>+HBnBFacade: Ask to create place with user ID
+    activate HBnBFacade
+    HBnBFacade->>+UserModel: Check if user exists
+    UserModel-->>-HBnBFacade: Return user info or error
+    alt User not allowed
+        HBnBFacade-->>PlaceAPI: User can't do this
+        PlaceAPI-->>Client: Error 403: Not allowed
+    else User allowed
+        HBnBFacade->>HBnBFacade: Check if place info is valid
+        Note over HBnBFacade: Check price, description is good, etc.
+        HBnBFacade->>+LocationService: Check if address is real
+        LocationService-->>-HBnBFacade: Return verified location
+        HBnBFacade->>+AmenityRepository: Get amenities by IDs
+        AmenityRepository-->>-HBnBFacade: Return list of amenities
+        alt Location or amenities not valid
+            HBnBFacade-->>PlaceAPI: Something is wrong with the data
+            PlaceAPI-->>Client: Error 400: Bad data (with details)
+        else Everything is valid
+            HBnBFacade->>+PlaceModel: Create new place with data
+            PlaceModel->>+PlaceRepository: Save place to database
+            PlaceRepository-->>-PlaceModel: Return saved place with ID
+            PlaceModel-->>-HBnBFacade: Return the created place
+            alt Place has amenities
+                HBnBFacade->>PlaceRepository: Connect amenities to place
+                PlaceRepository-->>HBnBFacade: Confirm connection
+            end
+            HBnBFacade-->>-PlaceAPI: Return created place
+            PlaceAPI->>PlaceAPI: Format the response
+            PlaceAPI-->>-Client: Success 201: Place created (with details)
+        end
+    end
+    deactivate Client
+```
 
 Exemples recommandés :
 - Création d’un `Place` par un utilisateur

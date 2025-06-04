@@ -36,63 +36,71 @@ Cette séparation permet une bonne **modularité**, **testabilité** et **mainte
 ### 3.1 Diagramme de classes métier
 
 ```mermaid
+
+---
+config:
+  theme: neo-dark
+  layout: elk
+title: Business Logic Layer
+---
 classDiagram
+direction TB
     class Base {
-        <<abstract>>
-        +String id
-        +DateTime created_at
-        +DateTime updated_at
-        +to_dict()
-        +save()
+	    +UUID id
+	    +created_at
+	    +updated_at
     }
-    
-    class User {
-        +String first_name
-        +String last_name
-        +String email
-        +String password
-        +Boolean is_admin
-        +register()
-        +delete()
+    class UserModel {
+	    +str first_name
+	    +str last_name
+	    +str email
+	    -str password
+	    +bool is_admin
+	    +register()
+	    +update_profile()
+	    +delete()
     }
-    
-    class Place {
-        +String title
-        +String description
-        +Float price
-        +Float latitude
-        +Float longitude
-        +create()
-        +update()
+    class PlaceModel {
+	    +str title
+	    +str description
+	    +float price
+	    +float latitude
+	    +float longitude
+	    +create()
+	    +update()
+	    +delete()
     }
-    
-    class Review {
-        +Integer rating
-        +String comment
-        +submit()
-        +edit()
+    class AmenityModel {
+	    +str name
+	    +str description
+	    +create()
+	    +update()
+	    +delete()
     }
-    
-    class Amenity {
-        +String name
-        +String description
+    class ReviewModel {
+	    +int rating
+	    +str comment
+	    +submit()
+	    +edit()
+	    +delete()
     }
-    
     class PlaceAmenity {
-        +place_id
-        +amenity_id
+	    +UUID id
+	    +UUID place_id
+	    +UUID amenity_id
     }
-    
-    Base <|-- User
-    Base <|-- Place
-    Base <|-- Review
-    Base <|-- Amenity
-    
-    User "1" *-- "0..*" Place : possède
-    Place "1" o-- "0..*" Review : reçoit
-    User "1" -- "0..*" Review : écrit
-    Place "1" *-- "0..*" PlaceAmenity : possède
-    Amenity "1" o-- "0..*" PlaceAmenity : associé à
+
+	<<abstract>> Base
+
+    PlaceModel --|> Base
+    AmenityModel --|> Base
+    ReviewModel --|> Base
+    UserModel --|> Base
+    UserModel "1" *-- "*" PlaceModel : owns and controls
+    PlaceModel "1" *-- "*" ReviewModel : has
+    AmenityModel "1" o-- "*" PlaceAmenity : used by
+    PlaceModel "1" *-- "*" PlaceAmenity : manages
+```
 
 ### 3.2 Description des entités et relations
 

@@ -17,7 +17,118 @@ Ce document sert de **référence technique** pour les phases de développement,
 
 ### 2.1 Diagramme de packages
 
-> *(Insère ici une image ou un diagramme Mermaid représentant l’architecture globale : API, Business Logic, Storage, etc.)*
+```mermaid
+
+---
+config:
+  look: neo
+  theme: neo-dark
+  layout: dagre
+title: High-Level Package Diagram
+---
+classDiagram
+direction TB
+	namespace PresentationLayer {
+        class UserAPI {
+            +register(userData)
+            +login(credentials)
+            +getProfile(userId)
+            +updateProfile(userId, data)
+        }
+        class PlaceAPI {
+            +create(placeData)
+            +getById(id)
+            +search(criteria)
+            +update(id, data)
+        }
+        class ReviewAPI {
+            +submitReview(reviewData)
+            +getByPlaceId(placeId)
+            +getByAuthorId(authorId)
+        }
+        class BookingService {
+            +createBooking(bookingData)
+            +confirmBooking(bookingId)
+            +cancelBooking(bookingId)
+        }
+	}
+	namespace BusinessLogicLayer {
+        class HBnBFacade {
+            +registerUser(data)
+            +authenticateUser(credentials)
+            +createPlace(placeData)
+            +searchPlaces(criteria)
+            +submitReview(reviewData)
+            +createBooking(bookingData
+        }
+        class User {
+            -id: String
+            -email: String
+            -name: String
+            -hashedPassword: String
+            +validate()
+            +isPasswordValid(password)
+            +getPublicProfile()
+        }
+        class Place {
+            -id: String
+            -name: String
+            -description: String
+            -location: Location
+            -ownerId: String
+            -price: Number
+            +validate()
+            +isAvailable(dates)
+            +calculateTotalPrice(checkIn, checkOut)
+        }
+        class Review {
+            -id: String
+            -placeId: String
+            -authorId: String
+            -rating: Number
+            -comment: String
+            -date: Date
+            +validate()
+        }
+        class Amenity {
+            -id: String
+            -name: String
+            -icon: String
+            +validate()
+        }
+	}
+	namespace PersistenceLayer {
+        class UserRepository {
+            +findByEmail(email)
+            +findByName(name)
+        }
+        class PlaceRepository {
+            +findByLocation(location, radius)
+            +findByAmenities(amenityIds)
+            +findByPriceRange(min, max)
+        }
+        class ReviewRepository {
+            +findByPlaceId(placeId)
+            +findByAuthorId(authorId)
+            +getAverageRating(placeId)
+        }
+        class AmenityRepository {
+            +findByCategory(category)
+        }
+	}
+    UserAPI --> HBnBFacade : use
+    PlaceAPI --> HBnBFacade : use
+    ReviewAPI --> HBnBFacade : use
+    BookingService --> HBnBFacade : use
+    HBnBFacade --> User : delegate
+    HBnBFacade --> Place : delegate
+    HBnBFacade --> Review : delegate
+    HBnBFacade --> Amenity : delegate
+    User --> UserRepository : access data
+    Place --> PlaceRepository : access data
+    Review --> ReviewRepository : access data
+    Amenity --> AmenityRepository : access data
+```
 
 ### 2.2 Description de l’architecture en couches
 

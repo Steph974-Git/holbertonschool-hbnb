@@ -454,45 +454,100 @@ sequenceDiagram
     participant UserModel
     participant PlaceModel
     participant ReviewModel
-    participant ReviewRepository
-    Client->>+ReviewAPI: Send review for a place
-    activate ReviewAPI
-    ReviewAPI->>ReviewAPI: Check if form is complete
-    Note over ReviewAPI: Make sure rating and comment are provided
-    ReviewAPI->>+HBnBFacade: Process this review
-    activate HBnBFacade
-    HBnBFacade->>+UserModel: Is this a valid user?
-    UserModel-->>-HBnBFacade: User info or not found
-    alt User not valid
-        HBnBFacade-->>ReviewAPI: User can't post reviews
-        ReviewAPI-->>Client: Error: Not allowed to post reviews
+    
+    Client->>+ReviewAPI: Submit new review
+    ReviewAPI->>ReviewAPI: Check required fields
+    ReviewAPI->>+HBnBFacade: Process review
+    
+    HBnBFacade->>+UserModel: Verify user
+    UserModel-->>-HBnBFacade: User status
+    
+    alt User invalid
+        HBnBFacade-->>ReviewAPI: Not authorized
+        ReviewAPI-->>Client: Error: Not allowed
     else User valid
-        HBnBFacade->>+PlaceModel: Does this place exist?
-        PlaceModel-->>-HBnBFacade: Place info or not found
-        alt Place doesn't exist
-            HBnBFacade-->>ReviewAPI: Can't find this place
+        HBnBFacade->>+PlaceModel: Verify place
+        PlaceModel-->>-HBnBFacade: Place status
+        
+        alt Place invalid
+            HBnBFacade-->>ReviewAPI: Place not found
             ReviewAPI-->>Client: Error: Place not found
-        else Place exists
+        else Place valid
             HBnBFacade->>HBnBFacade: Check review quality
-            Note over HBnBFacade: Is rating 1-5? Is comment long enough?
-            alt Review not good enough
-                HBnBFacade-->>ReviewAPI: Review doesn't meet standards
-                ReviewAPI-->>Client: Error: Please fix your review
-            else Review is good
-                HBnBFacade->>+ReviewModel: Create new review
-                ReviewModel->>+ReviewRepository: Save this review
-                ReviewRepository-->>-ReviewModel: Review saved successfully
-                ReviewModel-->>-HBnBFacade: Review is now created
-                HBnBFacade->>PlaceModel: Update place's average rating
-                PlaceModel-->>HBnBFacade: Rating updated
-                HBnBFacade-->>-ReviewAPI: Review is complete
-                ReviewAPI->>ReviewAPI: Prepare success message
-                ReviewAPI-->>-Client: Success: Your review is published!
+            
+            alt Review invalid
+                HBnBFacade-->>ReviewAPI: Invalid content
+                ReviewAPI-->>Client: Error: Fix your review
+            else Review valid
+                HBnBFacade->>ReviewStorage: Save review
+                ReviewStorage-->>HBnBFacade: Saved review
+                
+                HBnBFacade->>PlaceModel: Update rating
+                PlaceModel-->>HBnBFacade: Updated
+                
+                HBnBFacade-->>ReviewAPI: Review created
+                ReviewAPI-->>Client: Success: Review published
             end
         end
     end
 ```
-
+```mermaid
+---
+config:
+  theme: redux-dark-color
+  look: neo
+title: Fetching a List of Places
+---
+sequenceDiagram
+    participant Client
+    participant PlaceAPI
+    participant HBnBFacade
+    participant SearchService
+    participant PlaceRepository
+    participant AmenityRepository
+    
+    activate Client
+    Client->>+PlaceAPI: GET /places (search criteria)
+    activate PlaceAPI
+    Note over Client,PlaceAPI: Location, price, amenities, dates
+    
+    PlaceAPI->>PlaceAPI: Validate search parameters
+    PlaceAPI->>+HBnBFacade: searchPlaces(filters)
+    activate HBnBFacade
+    
+    HBnBFacade->>+SearchService: processSearch(searchCriteria)
+    activate SearchService
+    SearchService->>SearchService: Optimize search query
+    Note over SearchService: Convert location to coordinates, normalize filters
+    
+    alt Location and amenities specified
+        SearchService->>+AmenityRepository: getAmenityIds(amenityNames)
+        AmenityRepository-->>-SearchService: List of amenity IDs
+        
+        SearchService->>+PlaceRepository: findByLocationAndAmenities(...)
+        PlaceRepository-->>-SearchService: Filtered properties
+    else Other search criteria
+        SearchService->>+PlaceRepository: findByFilters(processedFilters)
+        PlaceRepository-->>-SearchService: Matching properties
+    end
+    
+    SearchService->>SearchService: Apply additional filters
+    Note over SearchService: Handle price range, dates, etc.
+    
+    SearchService-->>-HBnBFacade: Filtered search results
+    
+    HBnBFacade->>HBnBFacade: Sort and paginate results
+    Note over HBnBFacade: Order by relevance and limit results per page
+    
+    HBnBFacade->>HBnBFacade: Prepare place details
+    Note over HBnBFacade: Format for public view
+    
+    HBnBFacade-->>-PlaceAPI: searchResults object
+    
+    PlaceAPI->>PlaceAPI: Format response
+    PlaceAPI-->>-Client: 200 OK (places list with details)
+    deactivate Client
+    ```
 
 Recommended examples:
 - Creation of a `Place` by a user

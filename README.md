@@ -61,7 +61,7 @@ direction TB
             +submitReview(reviewData)
             +createBooking(bookingData)
         }
-        class User {
+        class UserModel {
             -id: String
             -email: String
             -name: String
@@ -70,7 +70,7 @@ direction TB
             +isPasswordValid(password)
             +getPublicProfile()
         }
-        class Place {
+        class PlaceModel {
             -id: String
             -name: String
             -description: String
@@ -81,7 +81,7 @@ direction TB
             +isAvailable(dates)
             +calculateTotalPrice(checkIn, checkOut)
         }
-        class Review {
+        class ReviewModel {
             -id: String
             -placeId: String
             -authorId: String
@@ -90,7 +90,7 @@ direction TB
             -date: Date
             +validate()
         }
-        class Amenity {
+        class AmenityModel {
             -id: String
             -name: String
             -icon: String
@@ -120,14 +120,14 @@ direction TB
     PlaceAPI --> HBnBFacade : use
     ReviewAPI --> HBnBFacade : use
     BookingService --> HBnBFacade : use
-    HBnBFacade --> User : delegate
-    HBnBFacade --> Place : delegate
-    HBnBFacade --> Review : delegate
-    HBnBFacade --> Amenity : delegate
-    User --> UserRepository : access data
-    Place --> PlaceRepository : access data
-    Review --> ReviewRepository : access data
-    Amenity --> AmenityRepository : access data
+    HBnBFacade --> UserModel : delegate
+    HBnBFacade --> PlaceModel : delegate
+    HBnBFacade --> ReviewModel : delegate
+    HBnBFacade --> AmenityModel : delegate
+    UserModel --> UserRepository : access data
+    PlaceModel --> PlaceRepository : access data
+    ReviewModel --> ReviewRepository : access data
+    AmenityModel --> AmenityRepository : access data
 ```
 
 ### 2.2 Description of the Layered Architecture
@@ -393,53 +393,37 @@ config:
   look: neo
 title : Place Creation
 ---
+
 sequenceDiagram
     participant Client
     participant PlaceAPI
     participant HBnBFacade
     participant UserModel
     participant PlaceModel
-    participant LocationService
-    participant AmenityRepository
     participant PlaceRepository
-    
-    activate Client
+
     Client->>+PlaceAPI: Submit new property listing
-    activate PlaceAPI
     PlaceAPI->>PlaceAPI: Check if listing is complete
-    Note over PlaceAPI: Make sure all required fields are filled
     PlaceAPI->>+HBnBFacade: Create this property listing
-    activate HBnBFacade
+
     HBnBFacade->>+UserModel: Can this user add listings?
-    UserModel-->>-HBnBFacade: User status and permissions
+    UserModel-->>-HBnBFacade: User permission
+
     alt User not permitted
         HBnBFacade-->>PlaceAPI: User can't add listings
-        PlaceAPI-->>Client: Error: You can't create listings
-    else User permitted
-        HBnBFacade->>HBnBFacade: Check property details
-        Note over HBnBFacade: Verify price, description, photos, etc.
-        HBnBFacade->>+LocationService: Is this address real?
-        LocationService-->>-HBnBFacade: Confirmed address details
-        HBnBFacade->>+AmenityRepository: Get selected amenities
-        AmenityRepository-->>-HBnBFacade: Available amenities
-        alt Address or amenities invalid
-            HBnBFacade-->>PlaceAPI: Property details have problems
-            PlaceAPI-->>Client: Error: Please fix property details
-        else All details valid
-            HBnBFacade->>+PlaceModel: Create new property
-            PlaceModel->>+PlaceRepository: Save this property
-            PlaceRepository-->>-PlaceModel: Property saved with new ID
-            PlaceModel-->>-HBnBFacade: Property successfully created
-            alt Property has amenities
-                HBnBFacade->>PlaceRepository: Add amenities to property
-                PlaceRepository-->>HBnBFacade: Amenities connected
-            end
-            HBnBFacade-->>-PlaceAPI: Property listing complete
-            PlaceAPI->>PlaceAPI: Prepare success message
-            PlaceAPI-->>-Client: Success: Your property is now listed!
-        end
+        PlaceAPI-->>Client: Error: Not authorized
+    else
+        HBnBFacade->>HBnBFacade: Basic property checks
+        Note over HBnBFacade: Check price, title, description
+
+        HBnBFacade->>+PlaceModel: Create new property
+        PlaceModel->>+PlaceRepository: Save property
+        PlaceRepository-->>-PlaceModel: Saved
+        PlaceModel-->>-HBnBFacade: Created
+        
+        HBnBFacade-->>PlaceAPI: Property listing created
+        PlaceAPI-->>Client: Success: Your listing is live!
     end
-    deactivate Client
 ```
 ```mermaid
 ---

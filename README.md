@@ -385,6 +385,7 @@ sequenceDiagram
     end
     deactivate Client
 ```
+This User Registration sequence diagram illustrates the comprehensive flow of creating a new user account in the system. It begins with client-side submission of registration data, which undergoes a two-phase validation process: first at the API level for format completeness, then at the business layer for rule compliance. The system performs a critical security check by verifying email uniqueness before proceeding. The diagram elegantly portrays two distinct paths: the error path when an email is already in use (returning appropriate guidance to the user), and the success path when validation passes. In the success scenario, the system demonstrates proper security practices by hashing the password via PasswordService before storage, persists the user data through UserModel and UserRepository, and triggers a welcome email notification via EmailService. This diagram effectively showcases how the system implements separation of concerns, security best practices, and proper error handling during the user onboarding process.
 
 ```mermaid
 ---
@@ -425,6 +426,7 @@ sequenceDiagram
         PlaceAPI-->>Client: Success: Your listing is live!
     end
 ```
+The Place Creation sequence diagram depicts the workflow for adding a new accommodation listing to the platform. The process begins with the client submitting property details, which undergo initial validation in the PlaceAPI to ensure completeness. The business layer first verifies user permissions through UserModel, ensuring only authorized users can create listings. The diagram illustrates two potential paths: rejection when a user lacks proper permissions, and successful creation when authorized. In the success path, the system performs essential property validation (price, title, description) before creating and persisting the new listing via PlaceModel and PlaceRepository. This streamlined approach demonstrates proper authorization checks, basic validation, and the core entity creation process. While this diagram presents a simplified version of place creation, in production environments, additional validation steps might include location verification, amenity association, and image processing to ensure comprehensive data quality before making listings available to the public.
 ```mermaid
 ---
 config:
@@ -475,6 +477,7 @@ sequenceDiagram
         end
     end
 ```
+The Review Submission sequence diagram illustrates the multi-stage validation process for user-generated content in the platform. The flow begins with a client submitting review data, which undergoes preliminary validation in the ReviewAPI to verify required fields. The business layer then conducts three critical validation steps: first authenticating the user through UserModel, ensuring only legitimate users can submit content; then verifying the place exists via PlaceModel, maintaining referential integrity; and finally applying content quality standards to the review itself, ensuring ratings and comments meet platform guidelines. The diagram effectively shows three decision points where the process can fail with appropriate error messages: invalid user, non-existent place, or substandard review content. Upon successful validation, the review is saved and triggers a cascading update to recalculate the place's average rating, demonstrating how a single operation affects multiple related entities. This comprehensive validation approach ensures that only high-quality, legitimate reviews from authorized users about existing properties enter the system, maintaining data integrity and content quality.
 ```mermaid
 ---
 config:
@@ -533,6 +536,7 @@ sequenceDiagram
     deactivate Client
 
 ```
+The Fetching a List of Places sequence diagram illustrates the sophisticated search functionality at the core of the platform's discovery experience. The process begins with a client request containing multi-dimensional search criteria: location, price range, amenities, and dates. After initial parameter validation in the PlaceAPI, the SearchService optimizes the query by converting location names to coordinates and normalizing filter values. The diagram demonstrates an intelligent dual-path search strategy: one optimized for the common location-and-amenities use case, and another for general filter combinations. After retrieving the initial database results, the system applies additional in-memory filtering for complex criteria like date availability, followed by sorting results by relevance and implementing pagination for performance optimization. The final steps include formatting the data for public consumption before returning it to the client. This diagram effectively showcases how the system balances search power and flexibility with performance considerations, handling complex multi-criteria queries while maintaining separation of concerns between components. The approach ensures users receive relevant, properly formatted results efficiently, regardless of search complexity.
 
 Recommended examples:
 - Creation of a `Place` by a userOh, she said. It's much more than not to be here. 

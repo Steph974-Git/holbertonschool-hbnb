@@ -522,7 +522,7 @@ sequenceDiagram
     
     alt Location and amenities specified
         SearchService->>+AmenityRepository: getAmenityIds(amenityNames)
-        AmenityRepository-->>-SearchService: List of amenity IDs
+        AmenityRepository-->>SearchService: Fetched amenity IDs
         
         SearchService->>+PlaceRepository: findByLocationAndAmenities(...)
         PlaceRepository-->>-SearchService: Filtered properties

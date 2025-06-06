@@ -385,7 +385,29 @@ sequenceDiagram
     end
     deactivate Client
 ```
-- This User Registration sequence diagram illustrates the comprehensive flow of creating a new user account in the system. It begins with client-side submission of registration data, which undergoes a two-phase validation process: first at the API level for format completeness, then at the business layer for rule compliance. The system performs a critical security check by verifying email uniqueness before proceeding. The diagram elegantly portrays two distinct paths: the error path when an email is already in use (returning appropriate guidance to the user), and the success path when validation passes. In the success scenario, the system demonstrates proper security practices by hashing the password via PasswordService before storage, persists the user data through UserModel and UserRepository, and triggers a welcome email notification via EmailService. This diagram effectively showcases how the system implements separation of concerns, security best practices, and proper error handling during the user onboarding process.
+##  User Registration
+
+###  Purpose
+Allow a new user to securely register an account.
+
+###  Flow Description
+1. The **Client** submits the sign-up form.
+2. The **UserAPI** checks if all required fields are filled.
+3. Data is sent to **HBnBFacade** for processing.
+4. **HBnBFacade** validates the input (age, password strength, etc.).
+5. It queries the **UserRepository** to check if the email already exists.
+6. If the email is **available**:
+   - **PasswordService** secures the password.
+   - The **UserModel** creates a new user and saves it.
+   - A welcome email is sent via **EmailService**.
+   - The client receives a success message.
+7. If the email is **already used**:
+   - An error message is returned to the client.
+
+###  Key Considerations
+- Email uniqueness check.
+- Secure password encryption.
+- Full input validation.
 
 ```mermaid
 ---
@@ -426,7 +448,28 @@ sequenceDiagram
         PlaceAPI-->>Client: Success: Your listing is live!
     end
 ```
-- The Place Creation sequence diagram depicts the workflow for adding a new accommodation listing to the platform. The process begins with the client submitting property details, which undergo initial validation in the PlaceAPI to ensure completeness. The business layer first verifies user permissions through UserModel, ensuring only authorized users can create listings. The diagram illustrates two potential paths: rejection when a user lacks proper permissions, and successful creation when authorized. In the success path, the system performs essential property validation (price, title, description) before creating and persisting the new listing via PlaceModel and PlaceRepository. This streamlined approach demonstrates proper authorization checks, basic validation, and the core entity creation process. While this diagram presents a simplified version of place creation, in production environments, additional validation steps might include location verification, amenity association, and image processing to ensure comprehensive data quality before making listings available to the public.
+---
+
+##  Place Creation
+
+###  Purpose
+Enable a user to create and publish a property listing.
+
+###  Flow Description
+1. The **Client** submits a new property form via **PlaceAPI**.
+2. The API validates form completeness.
+3. The request is passed to **HBnBFacade**.
+4. **HBnBFacade** checks the user's permission via **UserModel**.
+5. If the user is **not allowed**, an error is returned.
+6. If the user is **authorized**:
+   - Basic checks are performed (price, description, title).
+   - **PlaceModel** creates a property object and saves it.
+   - A confirmation is returned to the client.
+
+###  Key Considerations
+- Permission checks.
+- Data validation before saving.
+- Proper storage in **PlaceRepository**.
 ```mermaid
 ---
 config:
@@ -477,7 +520,31 @@ sequenceDiagram
         end
     end
 ```
-- The Review Submission sequence diagram illustrates the multi-stage validation process for user-generated content in the platform. The flow begins with a client submitting review data, which undergoes preliminary validation in the ReviewAPI to verify required fields. The business layer then conducts three critical validation steps: first authenticating the user through UserModel, ensuring only legitimate users can submit content; then verifying the place exists via PlaceModel, maintaining referential integrity; and finally applying content quality standards to the review itself, ensuring ratings and comments meet platform guidelines. The diagram effectively shows three decision points where the process can fail with appropriate error messages: invalid user, non-existent place, or substandard review content. Upon successful validation, the review is saved and triggers a cascading update to recalculate the place's average rating, demonstrating how a single operation affects multiple related entities. This comprehensive validation approach ensures that only high-quality, legitimate reviews from authorized users about existing properties enter the system, maintaining data integrity and content quality.
+---
+
+##  Review Submission
+
+###  Purpose
+Let users write reviews about places they've visited.
+
+###  Flow Description
+1. The **Client** submits a review through **ReviewAPI**.
+2. The API checks for required fields.
+3. The review is passed to **HBnBFacade**.
+4. **HBnBFacade**:
+   - Verifies user identity via **UserModel**.
+   - Checks if the place exists via **PlaceModel**.
+5. If the user or place is **invalid**, an error is returned.
+6. If both are **valid**:
+   - The review content is checked for quality.
+   - It is saved to **ReviewStorage**.
+   - The place’s rating is updated.
+   - A success message is sent to the client.
+
+###  Key Considerations
+- User and place verification.
+- Content quality control.
+- Real-time rating updates.
 ```mermaid
 ---
 config:
@@ -536,7 +603,34 @@ sequenceDiagram
     deactivate Client
 
 ```
- - The Fetching a List of Places sequence diagram illustrates the sophisticated search functionality at the core of the platform's discovery experience. The process begins with a client request containing multi-dimensional search criteria: location, price range, amenities, and dates. After initial parameter validation in the PlaceAPI, the SearchService optimizes the query by converting location names to coordinates and normalizing filter values. The diagram demonstrates an intelligent dual-path search strategy: one optimized for the common location-and-amenities use case, and another for general filter combinations. After retrieving the initial database results, the system applies additional in-memory filtering for complex criteria like date availability, followed by sorting results by relevance and implementing pagination for performance optimization. The final steps include formatting the data for public consumption before returning it to the client. This diagram effectively showcases how the system balances search power and flexibility with performance considerations, handling complex multi-criteria queries while maintaining separation of concerns between components. The approach ensures users receive relevant, properly formatted results efficiently, regardless of search complexity.
+---
+
+##  Fetching a List of Places
+
+###  Purpose
+Allow users to search for available properties based on specific criteria.
+
+###  Flow Description
+1. The **Client** sends a GET request with filters (e.g., location, price, dates).
+2. **PlaceAPI** validates search parameters.
+3. The request is forwarded to **HBnBFacade**, then to **SearchService**.
+4. **SearchService**:
+   - Optimizes the search (location coordinates, normalize filters).
+   - If amenities are included:
+     - Queries **AmenityRepository** for IDs.
+     - Calls **PlaceRepository** for matching results.
+   - Otherwise, filters directly via **PlaceRepository**.
+5. Results are post-processed:
+   - Additional filters (price range, availability) are applied.
+   - Results are sorted and paginated.
+6. Results are formatted and returned to the client.
+
+###  Key Considerations
+- Efficient query optimization.
+- Filter precision (especially for amenities and dates).
+- User-friendly output format.
+
+---
 
 Recommended examples:
 - Creation of a `Place` by a userOh, she said. It's much more than not to be here. 

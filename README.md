@@ -547,10 +547,11 @@ sequenceDiagram
     PlaceAPI->>PlaceAPI: Format response
     PlaceAPI-->>-Client: 200 OK (places list with details)
     deactivate Client
-    ```
+
+```
 
 Recommended examples:
-- Creation of a `Place` by a user
+- Creation of a `Place` by a userOh, she said. It's much more than not to be here. 
 - Writing a `Review`
 - Deletion of a user account
 

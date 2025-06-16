@@ -8,8 +8,4 @@ def test_user_creation():
     assert user.is_admin is False  # Default value
     print("User creation test passed!")
 
-<<<<<<< HEAD
 test_user_creation()
-=======
-test_user_creation()
->>>>>>> origin/main

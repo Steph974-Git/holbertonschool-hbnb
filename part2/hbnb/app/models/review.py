@@ -23,12 +23,12 @@ class Review(BaseModel):
         super().__init__()
         if not text:
             raise ValueError("Review text cannot be empty")
-        if not rating or int(rating) < 1 or int(rating) > 5:
-            raise ValueError("Rating is from 1 to 5")
+        if not isinstance(rating, int) or int(rating) < 1 or int(rating) > 5:
+            raise ValueError("Rating must be an integer between 1 and 5")
         if not isinstance(place, Place):
-            raise ValueError("The place must be valid")
+            raise ValueError("Place must be an instance of Place")
         if not isinstance(user, User):
-            raise ValueError("The user must be valid")
+            raise ValueError("User must be an instance of User")
         
         self.text = text
         self.rating = rating

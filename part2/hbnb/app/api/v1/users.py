@@ -46,7 +46,7 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
     
-    @api.response(201, 'User successfully updated')
+    @api.response(200, 'User successfully updated')
     @api.response(400, 'Invalid input data')
     @api.response(404, 'User not found')
     @api.expect(user_model, validate=True)

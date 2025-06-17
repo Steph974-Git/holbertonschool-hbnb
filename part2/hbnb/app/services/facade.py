@@ -47,4 +47,9 @@ class HBnBFacade:
     
     "add tack 2" 
     def update_user(self, user_id, user_data):
-        return self.user_repo.update(user_id, user_data)
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        
+        self.user_repo.update(user_id, user_data)
+        return self.user_repo.get(user_id)

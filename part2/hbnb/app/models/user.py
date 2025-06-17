@@ -11,7 +11,6 @@ class User(BaseModel):
         
         Args:
             email (str): User's email address
-            password (str): User's password
             first_name (str, optional): User's first name. Defaults to "".
             last_name (str, optional): User's last name. Defaults to "".
             is_admin (bool, optional): Admin status. Defaults to False.

@@ -40,3 +40,11 @@ class HBnBFacade:
     def update_amenity(self, amenity_id, amenity_data):
     # Placeholder for logic to update an amenity
         pass
+
+    "add task 2"
+    def get_all_users(self):
+        return self.user_repo.get_all()
+    
+    "add tack 2" 
+    def update_user(self, user_id, user_data):
+        return self.user_repo.update(user_id, user_data)

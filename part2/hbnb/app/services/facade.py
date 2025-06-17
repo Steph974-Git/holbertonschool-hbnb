@@ -1,6 +1,7 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
+from app.models.place import Place
 
 # Repositories globaux
 _user_repo = InMemoryRepository()
@@ -34,10 +35,24 @@ class HBnBFacade:
         self.user_repo.add(user)
         return user
 
-    # Placeholder method for fetching a place by ID
+    def create_place(self, place_data):
+        place = Place(**place_data)
+        self.place_repo.add(place)
+        return place
+
     def get_place(self, place_id):
-        # Logic will be implemented in later tasks
-        pass
+        return self.place_repo.get(place_id)
+
+    def get_all_places(self):
+        return self.place_repo.get_all()
+
+    def update_place(self, place_id, place_data):
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+        
+        self.user_repo.update(place_id, place_data)
+        return self.user_repo.get(place_id)
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)

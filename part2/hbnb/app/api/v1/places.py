@@ -34,23 +34,29 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        # Placeholder for the logic to register a new place
-        pass
+        place_data = api.payload
+        owner_id = facade.get_user(place_data['id'])
+        if not owner_id:
+            return {'error : User does not exist'}, 404
+        
+        new_place = facade.create_place(place_data)
+        return {"title": new_place.title, "description": new_place.description, "price": new_place.price, "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner_id}, 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
-        # Placeholder for logic to return a list of all places
-        pass
+        places = facade.get_all_places()
+        return [{"title": places.title, "description": places.description, "price": places.price, "latitude": places.latitude, "longitude": places.longitude, "owner_id": places.owner_id}], 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = facade.get_place(place_id)
+        if not place:
+            return None
+        
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')

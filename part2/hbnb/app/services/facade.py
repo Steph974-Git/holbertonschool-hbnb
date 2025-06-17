@@ -51,8 +51,8 @@ class HBnBFacade:
         if not place:
             return None
         
-        self.user_repo.update(place_id, place_data)
-        return self.user_repo.get(place_id)
+        self.place_repo.update(place_id, place_data)
+        return self.place_repo.get(place_id)
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)

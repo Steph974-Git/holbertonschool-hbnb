@@ -93,3 +93,4 @@ class AmenityResource(Resource):
 
         # Retourne l'amenity mise à jour
         return {'id': updated_amenity.id, 'name': updated_amenity.name}, 200
+    

@@ -32,7 +32,7 @@ class UserList(Resource):
     def get(self):
         """Get all users"""
         users = facade.get_all_users()
-        return [{'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email} for user in users], 200
+        return [{'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email} for user in users], 200
 
     
 @api.route('/<user_id>')
@@ -46,5 +46,15 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
     
-    def put(self):
+    @api.response(201, 'User successfully updated')
+    @api.response(400, 'Invalid input data')
+    @api.response(404, 'User not found')
+    @api.expect(user_model, validate=True)
+    def put(self, user_id):
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'user not found'}, 404
         
+        user_data = api.payload
+        updated_user = facade.update_user(user_id, user_data)
+        return {'id': updated_user.id, 'first_name': updated_user.first_name, 'last_name': updated_user.last_name, 'email': updated_user.email}, 200

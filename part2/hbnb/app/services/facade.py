@@ -36,7 +36,12 @@ class HBnBFacade:
         return user
 
     def create_place(self, place_data):
-        place = Place(**place_data)
+        owner_id = place_data.pop('owner_id')
+        owner = self.get_user(owner_id)
+        if not owner:
+            raise ValueError("Owner not found")
+        
+        place = Place(owner=owner, **place_data)
         self.place_repo.add(place)
         return place
 

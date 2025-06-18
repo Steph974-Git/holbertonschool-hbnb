@@ -2,6 +2,7 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
+from app.models.review import Review
 
 # Repositories globaux
 _user_repo = InMemoryRepository()
@@ -116,3 +117,61 @@ class HBnBFacade:
         
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
+    
+    def create_review(self, review_data):
+    # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
+        review = Review(
+            text = review_data['text'],
+            rating = review_data['rating'],
+            user = review_data['user'],
+            place = review_data['place'])
+        
+    # On l'ajoute au repo
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        if not review_id:
+            return None
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        # On véréfie si le place_id est valide
+        if not place_id:
+            return []
+        # On récupère toutes les reviews
+        all_reviews = self.review_repo.get_all()
+        # On filtre les reviews et on garde que celles du lieu spécifié
+        place_reviews = []
+        for review in all_reviews:
+            if review.place and review.place.id == place_id:
+                place_reviews.append(review)
+        return place_reviews
+
+    def update_review(self, review_id, review_data):
+        # On récupère la review existante
+        review = self.review_repo.get(review_id)
+        # On verifie si elle existe
+        if not review:
+            return None
+        # On met a jour les attribut de la review
+        if 'text' in review_data:
+            review.text = review_data['text']
+        
+        if 'rating' in review_data:
+            review.rating = review_data['rating']
+        review.save()
+        return review
+
+    def delete_review(self, review_id):
+        # On vérifie si la review existe
+        review = self.review_repo.get(review_id)
+        if not review:
+            return False
+        # On supprime la review du repo
+        self.review_repo.delete(review_id)
+        # Return True pour indiquer que la suppression existe
+        return True 

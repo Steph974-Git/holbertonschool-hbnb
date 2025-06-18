@@ -37,7 +37,20 @@ class HBnBFacade:
         return user
 
     def create_place(self, place_data):
-        place = Place(**place_data)
+        owner_id = place_data.pop('owner_id')
+        owner = self.get_user(owner_id)
+        if not owner:
+            raise ValueError("Owner not found")
+        
+        amenities = place_data.pop('amenities', [])
+        
+        place = Place(owner=owner, **place_data)
+
+        for amenity_id in amenities:
+            amenity = self.amenity_repo.get(amenity_id)
+            if amenity:
+                place.add_amenity(amenity)
+
         self.place_repo.add(place)
         return place
 
@@ -88,6 +101,9 @@ class HBnBFacade:
         amenity.name = name
         amenity.save()  # Mettre à jour le timestamp updated_at
         return amenity
+    
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
 
     "add task 2"
     def get_all_users(self):

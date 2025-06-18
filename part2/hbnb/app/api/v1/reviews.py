@@ -163,8 +163,21 @@ class ReviewResource(Resource):
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """Delete a review"""
-        # Placeholder for the logic to delete a review
-        pass
+        try:
+            hbnb_facade = facade.HBnBFacade()
+            existing_review = hbnb_facade.get_review(review_id)
+
+            if not existing_review:
+                return {'message': f'Review with ID {review_id} not found'}, 404
+            success = hbnb_facade.delete_review(review_id)
+
+            if success:
+                return {'message': f'Review with ID { review_id} deleted successfully'}, 200
+            else:
+                return {'message': f'Failed to delete review with ID {review_id}'}, 500
+        except Exception as e:
+            return {'message': f'An errir occurred: {str(e)}'}, 500
+
 
 @api.route('/places/<place_id>/reviews')
 class PlaceReviewList(Resource):
@@ -172,5 +185,26 @@ class PlaceReviewList(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get all reviews for a specific place"""
-        # Placeholder for logic to return a list of reviews for a place
-        pass
+        try:
+            hbnb_facade = facade.HBnBFacade()
+            place = hbnb_facade.get_place(place_id)
+
+            if not place:
+                return {'message': f'Place with ID {place_id} not found'}, 404
+            reviews = hbnb_facade.get_reviews_by_place(place_id)
+
+            if not reviews:
+                return [], 200
+            
+            result = []
+            for review in reviews:
+                review_data = {
+                    'id': review.id, 'text': review.text, 'rating': review.rating,
+                    'user_id': review.user.id, 'place_id': review.place.id,
+                    'created_at': review.created_at.isoformat(),
+                    'updated_at': review.updated_at.isoformat()
+                }
+                result.append(review_data)
+            return result, 200
+        except Exception as e:
+            return {'message':f'An error occurred: {str(e)}'}, 500

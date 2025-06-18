@@ -152,7 +152,12 @@ class ReviewResource(Resource):
             updated_review = hbnb_facade.updated_review(review_id, updated_data)
             # Retourner la réponse
             return {'id': updated_review.id, 'text': updated_review.text, 'rating': updated_review.rating,
-                    'user_id': updated_review.user_id, 'place_id': updated_review}
+                    'user_id': updated_review.user.id, 'place_id': updated_review.place.id,
+                    'created_at': updated_review.created_at.isoformat(),
+                    'updated_at': updated_review.updated_at.isoformat()}, 200
+        except Exception as e:
+            # Gerer les erreurs potentielles
+            return {'message': f'An error occurred: {str(e)}'}, 500
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')

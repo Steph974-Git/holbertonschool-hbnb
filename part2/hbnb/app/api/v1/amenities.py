@@ -18,16 +18,16 @@ class AmenityList(Resource):
         """Register a new amenity"""
         try:
             # Récupération et validation des données
-            data = api.payload
+            amenity_data = api.payload
 
-            if not data.get('name'):
+            if not amenity_data.get('name'):
                 return {"message": "Name is required"}, 400
-            if len(data['name']) > 50:
+            if len(amenity_data['name']) > 50:
                 return {"message": "Name must be less than 50 characters"}, 400
             
             # Création de l'amenity après validation
             hbnb_facade = HBnBFacade()  # Utilisation directe de la classe
-            new_amenity = hbnb_facade.create_amenity(data['name'])
+            new_amenity = hbnb_facade.create_amenity(amenity_data['name'])
             
             # Vérification que l'objet a bien été créé
             if not new_amenity:
@@ -94,12 +94,12 @@ class AmenityResource(Resource):
     def put(self, amenity_id):
         """Update an amenity's information"""
         # Récupère les données de la requête
-        data = api.payload
+        amenity_data = api.payload
 
         # Validation données
-        if not data.get('name'):
+        if not amenity_data.get('name'):
             return {"message": f"Name is required"}, 400
-        if len(data['name']) > 50:
+        if len(amenity_data['name']) > 50:
             return {"message": "Name must be less than 50 characters"}, 400
         
         # Vérifie d'abord si l'amenity existe
@@ -110,7 +110,7 @@ class AmenityResource(Resource):
             return {"message": f"Amenity with ID {amenity_id} not found"}, 404
         
         # Met a jour l'amenity
-        updated_amenity = hbnb_facade.update_amenity(amenity_id, data['name'])
+        updated_amenity = hbnb_facade.update_amenity(amenity_id, amenity_data['name'])
 
         # Retourne l'amenity mise à jour
         return {'id': updated_amenity.id, 'name': updated_amenity.name}, 200

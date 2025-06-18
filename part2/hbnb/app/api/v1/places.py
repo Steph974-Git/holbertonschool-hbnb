@@ -51,14 +51,14 @@ class PlaceList(Resource):
         
         new_place = facade.create_place(place_data)
         return {"id": new_place.id, "title": new_place.title, "description": new_place.description, "price": new_place.price,
-                "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner.id}, 201
+                "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner.id, "amenities": new_place.amenities}, 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
         return [{"id": place.id, "title": place.title, "description": place.description, "price": place.price,
-                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id} for place in places], 200
+                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": place.amenities} for place in places], 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -69,7 +69,7 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
         return {"id": place.id, "title": place.title, "description": place.description, "price": place.price, 
-                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id}, 200
+                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": place.amenities}, 200
         
 
     @api.expect(place_model)
@@ -94,4 +94,4 @@ class PlaceResource(Resource):
             return {'error': 'Owner ID is required'}, 400
         update_place = facade.update_place(place_id, api.payload)
         return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
-                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id}, 200
+                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id, "amenities": update_place.amenities}, 200

@@ -118,10 +118,4 @@ class PlaceResource(Resource):
         if not place_data.get('owner_id'):
             return {'error': 'Owner ID is required'}, 400
         update_place = facade.update_place(place_id, api.payload)
-        if update_place.amenities:
-            amenities_list = [{"id": amenity.id, "name": amenity.name} for amenity in update_place.amenities]
-            return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
-                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id, "amenities": amenities_list}, 200
-        else:
-            return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
-                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id}, 200
+        return {"message": "Place updated successfully"}, 200

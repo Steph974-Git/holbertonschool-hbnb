@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
+from app.services.facade import HBnBFacade
 
 api = Namespace('reviews', description='Review operations')
 
@@ -40,7 +40,7 @@ class ReviewList(Resource):
                 return {'message': 'Rating must be a number between 1 and 5'}, 400
             
             # S'en suit la création de la review et la récupération de l'utilisateur et du lieu
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             user = hbnb_facade.get_user(reviews_data['user_id'])
             place = hbnb_facade.get_place(reviews_data['place_id'])
 
@@ -59,7 +59,7 @@ class ReviewList(Resource):
 
             # On retourne les détails de la review créée
             return {'id': review.id, 'text': review.text, 'rating': review.rating, 'user_id': user.id,
-                    'place_id': review.place, 'created_at': review.created_at.isoformat()}, 201
+                    'place_id': review.place.id, 'created_at': review.created_at.isoformat()}, 201
         
         except Exception as e:
             # Gestion des erreurs générales pour tout le bloc
@@ -72,7 +72,7 @@ class ReviewList(Resource):
         """Retrieve a list of all reviews"""
         try:
             # Récupérer les reviews via la façade
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             reviews = hbnb_facade.get_all_reviews()
             # Vérifier si des reviews existent
             if not reviews:
@@ -82,10 +82,10 @@ class ReviewList(Resource):
             for review in reviews:
             # Créer un dictionnaire pour chaques review
                 review_data = {'id': review.id, 'text': review.text, 'rating': review.rating,
-                            'user_id': review.user_id, 'place_id': review.place.id,
+                            'user_id': review.user.id, 'place_id': review.place.id,
                             'created_at': review.created_at.isoformat(),
                             'updated_at': review.updated_at.isoformat()}
-            result.append(review_data)
+                result.append(review_data)
             # Ensuite on return la liste des reviews
             return result, 200
         except Exception as e:
@@ -98,14 +98,14 @@ class ReviewResource(Resource):
     def get(self, review_id):
         """Get review details by ID"""
         try:
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             review = hbnb_facade.get_review(review_id)
 
             if not review:
                 return {'message': f"Review with ID {review_id} not found"}, 404
             
             review_data = {'id': review.id, 'text': review.text, 'rating': review.rating,
-                        'user_id': review.user_id, 'place_id': review.place.id,
+                        'user_id': review.user.id, 'place_id': review.place.id,
                         'created_at': review.created_at.isoformat(),
                         'updated_at': review.updated_at.isoformat()}
             return review_data
@@ -130,14 +130,14 @@ class ReviewResource(Resource):
                 try:
                     rating = int(review_data['rating'])
                     if rating < 1 or rating > 5:
-                        return {'message': 'Rating must be between 1 and 5'}
+                        return {'message': 'Rating must be between 1 and 5'}, 400  # Ajout du code HTTP 400
                 except (ValueError, TypeError):
                     return {'message': 'Rating must be a number between 1 and 5'}, 400
-        
+
             if 'text' in review_data and not review_data['text']:
                 return {'message': 'Review text cannot be empty'}, 400
             # Verifier si la review existe
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             existing_review = hbnb_facade.get_review(review_id)
 
             if not existing_review:
@@ -149,14 +149,22 @@ class ReviewResource(Resource):
             if 'rating' in review_data:
                 updated_data['rating'] = rating
             # Mettre a jour la review
-            updated_review = hbnb_facade.updated_review(review_id, updated_data)
+            update_review = hbnb_facade.updated_review(review_id, updated_data)
             # Retourner la réponse
-            return {'id': updated_review.id, 'text': updated_review.text, 'rating': updated_review.rating,
-                    'user_id': updated_review.user.id, 'place_id': updated_review.place.id,
-                    'created_at': updated_review.created_at.isoformat(),
-                    'updated_at': updated_review.updated_at.isoformat()}, 200
+            return {
+                'id': update_review.id, 
+                'text': update_review.text, 
+                'rating': update_review.rating,
+                'user_id': update_review.user.id,  # Assurez-vous que c'est bien user.id
+                'place_id': update_review.place.id,  # Assurez-vous que c'est bien place.id
+                'created_at': update_review.created_at.isoformat(),
+                'updated_at': update_review.updated_at.isoformat()
+            }, 200
         except Exception as e:
             # Gerer les erreurs potentielles
+            import traceback
+            print(f"Error updating review: {str(e)}")
+            print(traceback.format_exc())
             return {'message': f'An error occurred: {str(e)}'}, 500
 
     @api.response(200, 'Review deleted successfully')
@@ -164,7 +172,7 @@ class ReviewResource(Resource):
     def delete(self, review_id):
         """Delete a review"""
         try:
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             existing_review = hbnb_facade.get_review(review_id)
 
             if not existing_review:
@@ -186,7 +194,7 @@ class PlaceReviewList(Resource):
     def get(self, place_id):
         """Get all reviews for a specific place"""
         try:
-            hbnb_facade = facade.HBnBFacade()
+            hbnb_facade = HBnBFacade()
             place = hbnb_facade.get_place(place_id)
 
             if not place:

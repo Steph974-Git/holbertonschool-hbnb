@@ -126,6 +126,8 @@ class HBnBFacade:
             user = review_data['user'],
             place = review_data['place'])
         
+        review_data['place'].add_review(review)
+        
     # On l'ajoute au repo
         self.review_repo.add(review)
         return review
@@ -151,7 +153,7 @@ class HBnBFacade:
                 place_reviews.append(review)
         return place_reviews
 
-    def update_review(self, review_id, review_data):
+    def updated_review(self, review_id, review_data):
         # On récupère la review existante
         review = self.review_repo.get(review_id)
         # On verifie si elle existe

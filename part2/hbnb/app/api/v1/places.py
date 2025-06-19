@@ -50,15 +50,28 @@ class PlaceList(Resource):
             return {'error': 'User does not exist'}, 404
         
         new_place = facade.create_place(place_data)
+        if new_place.amenities:
+            amenities_list = [{"id": amenity.id, "name": amenity.name} 
+                             for amenity in new_place.amenities]
+            return {"id": new_place.id, "title": new_place.title, "description": new_place.description, "price": new_place.price,
+                    "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner.id, "amenities": amenities_list}, 201
         return {"id": new_place.id, "title": new_place.title, "description": new_place.description, "price": new_place.price,
-                "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner.id, "amenities": new_place.amenities}, 201
+                    "latitude": new_place.latitude, "longitude": new_place.longitude, "owner_id": new_place.owner.id}, 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
-        return [{"id": place.id, "title": place.title, "description": place.description, "price": place.price,
-                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": place.amenities} for place in places], 200
+        result = []
+        for place in places:
+            if place.amenities:
+                amenities_list = [{"id": amenity.id, "name": amenity.name} for amenity in place.amenities]
+                result.append({"id": place.id, "title": place.title, "description": place.description, "price": place.price,
+                    "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": amenities_list})
+            else:
+                result.append({"id": place.id, "title": place.title, "description": place.description, "price": place.price,
+                    "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id})
+        return result, 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -67,10 +80,13 @@ class PlaceResource(Resource):
     def get(self, place_id):
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found'}, 404
-        return {"id": place.id, "title": place.title, "description": place.description, "price": place.price, 
-                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": place.amenities}, 200
-        
+            return {"error": "Place not found"}, 404
+        if place.amenities:
+            amenities_list = [{"id": amenity.id, "name": amenity.name} for amenity in place.amenities]
+            return {"id": place.id, "title": place.title, "description": place.description, "price": place.price,
+                  "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": amenities_list}, 200
+        return {"id": place.id, "title": place.title, "description": place.description, "price": place.price,
+                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id}, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -93,5 +109,10 @@ class PlaceResource(Resource):
         if not place_data.get('owner_id'):
             return {'error': 'Owner ID is required'}, 400
         update_place = facade.update_place(place_id, api.payload)
-        return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
-                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id, "amenities": update_place.amenities}, 200
+        if update_place.amenities:
+            amenities_list = [{"id": amenity.id, "name": amenity.name} for amenity in update_place.amenities]
+            return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
+                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id, "amenities": amenities_list}, 200
+        else:
+            return {"id": update_place.id, "title": update_place.title, "description": update_place.description, "price": update_place.price, 
+                "latitude": update_place.latitude, "longitude": update_place.longitude, "owner_id": update_place.owner.id}, 200

@@ -32,6 +32,7 @@ place_model = api.model('Place', {
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
+    'owner': fields.Nested(user_model, description='Owner of the place'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's"),
 })
 
@@ -90,12 +91,18 @@ class PlaceResource(Resource):
         place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
+        owner_details = {
+            "id": place.owner.id,
+            "first_name": place.owner.first_name,
+            "last_name": place.owner.last_name,
+            "email": place.owner.email
+        }
         if place.amenities:
             amenities_list = [{"id": amenity.id, "name": amenity.name} for amenity in place.amenities]
             return {"id": place.id, "title": place.title, "description": place.description, "price": place.price,
-                  "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id, "amenities": amenities_list}, 200
+                  "latitude": place.latitude, "longitude": place.longitude, "owner": owner_details, "amenities": amenities_list}, 200
         return {"id": place.id, "title": place.title, "description": place.description, "price": place.price,
-                "latitude": place.latitude, "longitude": place.longitude, "owner_id": place.owner.id}, 200
+                "latitude": place.latitude, "longitude": place.longitude, "owner": owner_details}, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')

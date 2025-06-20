@@ -4,6 +4,8 @@ from datetime import datetime
 '''
 Fichier copier coller des ressources, surement a modifier ⚠️
 '''
+
+
 class BaseModel:
     def __init__(self):
         self.id = str(uuid.uuid4())

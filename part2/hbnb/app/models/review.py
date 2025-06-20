@@ -5,17 +5,18 @@ from app.models.base_model import BaseModel
 from app.models.user import User
 from app.models.place import Place
 
+
 class Review(BaseModel):
 
     def __init__(self, text, rating, place, user):
         """Initialize a new Review with validation
-    
+
         Args:
             text (str): The content of the review
             rating (int): Rating score between 1 and 5
             place (Place): The place being reviewed
             user (User): The user writing the review
-        
+
         Raises:
             ValueError: If any validation fails
             TypeError: If rating is not convertible to int
@@ -29,9 +30,8 @@ class Review(BaseModel):
             raise ValueError("Place must be an instance of Place")
         if not isinstance(user, User):
             raise ValueError("User must be an instance of User")
-        
+
         self.text = text
         self.rating = rating
         self.place = place
         self.user = user
-        

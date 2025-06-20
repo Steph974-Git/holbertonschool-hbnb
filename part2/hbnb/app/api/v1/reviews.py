@@ -108,7 +108,7 @@ class ReviewResource(Resource):
                         'user_id': review.user.id, 'place_id': review.place.id,
                         'created_at': review.created_at.isoformat(),
                         'updated_at': review.updated_at.isoformat()}
-            return review_data
+            return review_data, 200
         except Exception as e:
             return {'message': f'An error occurred: {str(e)}'}, 500
             
@@ -136,6 +136,8 @@ class ReviewResource(Resource):
 
             if 'text' in review_data and not review_data['text']:
                 return {'message': 'Review text cannot be empty'}, 400
+            if 'user_id' in review_data or 'place_id' in review_data:
+                return {'message': 'Cannot change user_id or place_id of a review'}, 400
             # Verifier si la review existe
             hbnb_facade = HBnBFacade()
             existing_review = hbnb_facade.get_review(review_id)

@@ -84,7 +84,6 @@ Each resource has a complete set of CRUD endpoints:
 - `GET /api/v1/amenities`: Retrieval of the list of amenities
 - `GET /api/v1/amenities/{id}`: Consultation of amenity details
 - `PUT /api/v1/amenities/{id}`: Update of an amenity
-- `DELETE /api/v1/amenities/{id}`: Deletion of an amenity
 
 #### Review System
 - `POST /api/v1/reviews`: Submission of a new review
@@ -132,7 +131,7 @@ The tests ensure that:
 - **REST API**: Flask-RESTx
 - **API Documentation**: Swagger UI (integrated via Flask-RESTx)
 - **Persistence**: InMemoryRepository (abstraction for future storage)
-- **Testing**: pytest
+- **Testing**: unittest
 - **Dependency Management**: pip, requirements.txt
 
 ## Installation and Startup

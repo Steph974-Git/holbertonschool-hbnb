@@ -153,8 +153,6 @@ class PlaceResource(Resource):
                     return {'error': 'Longitude must be between -180 and 180 degrees'}, 400
             if 'price' in place_data and place_data['price'] <= 0:
                 return {'error': 'Price must be a positive number'}, 400
-            if not place_data.get('owner_id'):
-                return {'error': 'Owner ID is required'}, 400
             new_owner = None
             if 'owner_id' in place_data and place_data['owner_id'] != place.owner.id:
                 new_owner = facade.get_user(place_data['owner_id'])

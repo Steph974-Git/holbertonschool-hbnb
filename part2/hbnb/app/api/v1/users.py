@@ -23,7 +23,7 @@ class UserList(Resource):
         try:
             user_data = api.payload
 
-            email_regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+            email_regex = re.compile(r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
             if not email_regex.match(user_data.get('email', '')):
                 return {'error': 'Invalid email format'}, 400
         
@@ -75,29 +75,35 @@ class UserResource(Resource):
     @api.response(400, 'Invalid input data')
     @api.response(404, 'User not found')
     @api.response(500, 'Internal server error')
-    @api.expect(user_model, validate=True)
+    @api.expect(user_model)  # Supprimer validate=True
     def put(self, user_id):
         try:
             user = facade.get_user(user_id)
             if not user:
                 return {'error': 'user not found'}, 404
-        
+            
             user_data = api.payload
+            
+            # Validation manuelle des champs présents
             if 'email' in user_data:
-                email_regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+                email_regex = re.compile(r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                 if not email_regex.match(user_data['email']):
                     return {'error': 'Invalid email format'}, 400
-            if user_data['email'] != user.email:
-                existing_user = facade.get_user_by_email(user_data['email'])
-                if existing_user and existing_user.id != user_id:
-                    return {'error': 'Email already registered to another user'}, 400
+                    
+                # Vérifier que l'email n'est pas déjà pris
+                if user_data['email'] != user.email:
+                    existing_user = facade.get_user_by_email(user_data['email'])
+                    if existing_user and existing_user.id != user_id:
+                        return {'error': 'Email already registered to another user'}, 400
             
-            if 'first_name' in user_data and len(user_data['first_name']) > 50:
-                return {'error': 'First name must not exceed 50 characters'}, 400
+            # Reste des validations
+            if 'first_name' in user_data and (not user_data['first_name'] or len(user_data['first_name']) > 50):
+                return {'error': 'First name is required and must not exceed 50 characters'}, 400
 
-            if 'last_name' in user_data and len(user_data['last_name']) > 50:
+            if 'last_name' in user_data and (not user_data['last_name'] or len(user_data['last_name']) > 50):
                 return {'error': 'Last name must not exceed 50 characters'}, 400
-                
+
+            # Mise à jour
             updated_user = facade.update_user(user_id, user_data)
             return {'id': updated_user.id, 'first_name': updated_user.first_name, 'last_name': updated_user.last_name, 'email': updated_user.email}, 200
         except ValueError as e:
@@ -105,4 +111,3 @@ class UserResource(Resource):
         except Exception as e:
             print(f"Error updating user: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
-

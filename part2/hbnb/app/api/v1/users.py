@@ -60,8 +60,10 @@ class UserList(Resource):
 
             # Création de l'utilisateur après validation
             new_user = facade.create_user(user_data)
-            return {'id': new_user.id, 'first_name': new_user.first_name,
-                    'last_name': new_user.last_name, 'email': new_user.email}, 201
+            return {'id': new_user.id,
+                    'first_name': new_user.first_name,
+                    'last_name': new_user.last_name,
+                    'email': new_user.email}, 201
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:
@@ -79,7 +81,8 @@ class UserList(Resource):
         try:
             users = facade.get_all_users()
             return [{'id': user.id, 'first_name': user.first_name,
-                     'last_name': user.last_name, 'email': user.email} for user in users], 200
+                     'last_name': user.last_name,
+                     'email': user.email} for user in users], 200
         except Exception as e:
             print(f"Error retrieving users: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
@@ -121,7 +124,8 @@ class UserResource(Resource):
             user_id: The unique identifier of the user to update
 
         Returns:
-            Updated user details with HTTP 200 or an error with HTTP 400/404/500.
+            Updated user details with HTTP 200 or
+            an error with HTTP 400/404/500.
         """
         try:
             # Vérifier que l'utilisateur existe
@@ -147,14 +151,16 @@ class UserResource(Resource):
                         user_data['email'])
                     if existing_user and existing_user.id != user_id:
                         return {
-                            'error': 'Email already registered to another user'}, 400
+                            'error': 'Email already '
+                            'registered to another user'}, 400
 
             # Validation du prénom si présent
             if 'first_name' in user_data and (
                 not user_data['first_name'] or len(
                     user_data['first_name']) > 50):
                 return {
-                    'error': 'First name is required and must not exceed 50 characters'}, 400
+                    'error': 'First name is required and must '
+                    'not exceed 50 characters'}, 400
 
             # Validation du nom si présent
             if 'last_name' in user_data and (
@@ -164,8 +170,10 @@ class UserResource(Resource):
 
             # Mise à jour de l'utilisateur après validation
             updated_user = facade.update_user(user_id, user_data)
-            return {'id': updated_user.id, 'first_name': updated_user.first_name,
-                    'last_name': updated_user.last_name, 'email': updated_user.email}, 200
+            return {'id': updated_user.id,
+                    'first_name': updated_user.first_name,
+                    'last_name': updated_user.last_name,
+                    'email': updated_user.email}, 200
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:

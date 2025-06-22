@@ -1,7 +1,9 @@
 """Module de façade pour l'application HBnB.
 
-Ce module implémente le pattern Façade pour centraliser l'accès aux fonctionnalités
-de l'application. Il gère l'interaction avec les repositories et fournit une interface
+Ce module implémente le pattern Façade pour centraliser
+l'accès aux fonctionnalités
+de l'application. Il gère l'interaction avec
+les repositories et fournit une interface
 unifiée pour toutes les opérations sur les modèles.
 """
 from app.persistence.repository import InMemoryRepository
@@ -124,7 +126,8 @@ class HBnBFacade:
 
         Args:
             place_id (str): ID de l'hébergement à mettre à jour.
-            place_data (dict): Données à mettre à jour, peut inclure une liste d'amenities.
+            place_data (dict): Données à mettre à jour,
+            peut inclure une liste d'amenities.
 
         Returns:
             Place: L'objet hébergement mis à jour ou None s'il n'existe pas.
@@ -319,7 +322,8 @@ class HBnBFacade:
         """Récupère tous les avis pour un hébergement spécifique.
 
         Args:
-            place_id (str): ID de l'hébergement dont on veut récupérer les avis.
+            place_id (str): ID de l'hébergement
+            dont on veut récupérer les avis.
 
         Returns:
             list: Liste des avis pour l'hébergement spécifié.

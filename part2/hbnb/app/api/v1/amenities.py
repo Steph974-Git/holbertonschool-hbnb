@@ -28,8 +28,10 @@ class AmenityList(Resource):
         Crée un nouvel équipement avec le nom fourni après validation.
 
         Returns:
-            dict: Les détails de l'équipement créé et code HTTP 201 en cas de succès
-            dict: Message d'erreur et code HTTP approprié (400, 500) en cas d'échec
+            dict: Les détails de l'équipement
+            créé et code HTTP 201 en cas de succès
+            dict: Message d'erreur et code HTTP
+            approprié (400, 500) en cas d'échec
         """
         try:
             # Récupération et validation des données
@@ -109,7 +111,8 @@ class AmenityResource(Resource):
 
         Returns:
             dict: Les détails de l'équipement et code HTTP 200 en cas de succès
-            dict: Message d'erreur et code HTTP 404 si l'équipement n'existe pas
+            dict: Message d'erreur et code HTTP 404 si
+            l'équipement n'existe pas
         """
         try:
             # Récupération de l'amenity par son ID
@@ -136,11 +139,14 @@ class AmenityResource(Resource):
         """Met à jour les informations d'un équipement.
 
         Args:
-            amenity_id (str): L'identifiant unique de l'équipement à mettre à jour
+            amenity_id (str): L'identifiant unique de
+            l'équipement à mettre à jour
 
         Returns:
-            dict: Les détails de l'équipement mis à jour et code HTTP 200 en cas de succès
-            dict: Message d'erreur et code HTTP approprié (400, 404, 500) en cas d'échec
+            dict: Les détails de l'équipement mis à jour et
+            code HTTP 200 en cas de succès
+            dict: Message d'erreur et code HTTP approprié
+            (400, 404, 500) en cas d'échec
         """
         try:
             # Récupère les données de la requête

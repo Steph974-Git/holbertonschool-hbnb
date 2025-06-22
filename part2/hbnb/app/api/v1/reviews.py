@@ -14,7 +14,8 @@ api = Namespace('reviews', description='Review operations')
 # Définition du modèle review pour la validation des entrées et documentation
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
-    'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
+    'rating': fields.Integer(required=True,
+                             description='Rating of the place (1-5)'),
     'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
@@ -192,13 +193,15 @@ class ReviewResource(Resource):
         """Met à jour les informations d'un avis existant.
 
         Seuls le texte et la note peuvent être modifiés.
-        Les relations avec l'utilisateur et le lieu ne peuvent pas être changées.
+        Les relations avec l'utilisateur
+        et le lieu ne peuvent pas être changées.
 
         Args:
             review_id (str): L'identifiant unique de l'avis à mettre à jour
 
         Returns:
-            dict: Les détails de l'avis mis à jour et code HTTP 200 en cas de succès
+            dict: Les détails de l'avis mis à
+            jour et code HTTP 200 en cas de succès
             dict: Message d'erreur et code HTTP approprié en cas d'échec
         """
         try:
@@ -218,7 +221,8 @@ class ReviewResource(Resource):
                             'message': 'Rating must be between 1 and 5'}, 400
                 except (ValueError, TypeError):
                     return {
-                        'message': 'Rating must be a number between 1 and 5'}, 400
+                        'message': 'Rating must be a '
+                        'number between 1 and 5'}, 400
 
             if 'text' in review_data and not review_data['text']:
                 return {'message': 'Review text cannot be empty'}, 400
@@ -226,7 +230,8 @@ class ReviewResource(Resource):
             # Interdiction de modifier les relations
             if 'user_id' in review_data or 'place_id' in review_data:
                 return {
-                    'message': 'Cannot change user_id or place_id of a review'}, 400
+                    'message': 'Cannot change '
+                    'user_id or place_id of a review'}, 400
 
             # Vérification que l'avis existe
             hbnb_facade = HBnBFacade()
@@ -310,10 +315,12 @@ class PlaceReviewList(Resource):
         """Récupère tous les avis pour un hébergement spécifique.
 
         Args:
-            place_id (str): L'identifiant unique de l'hébergement dont on veut les avis
+            place_id (str): L'identifiant unique
+            de l'hébergement dont on veut les avis
 
         Returns:
-            list: Liste des avis pour l'hébergement et code HTTP 200 en cas de succès
+            list: Liste des avis pour l'hébergement
+            et code HTTP 200 en cas de succès
             list: Liste vide si aucun avis n'existe pour cet hébergement
             dict: Message d'erreur et code HTTP approprié en cas d'échec
         """

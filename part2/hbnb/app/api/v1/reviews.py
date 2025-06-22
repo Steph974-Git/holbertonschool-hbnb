@@ -74,13 +74,9 @@ class ReviewList(Resource):
 
             # Vérification de l'existence des entités associées
             if not user:
-                return {
-                    'message': f'User with ID {
-                        reviews_data["user_id"]} not found'}, 404
+                return {'message': f'User with ID {reviews_data["user_id"]} not found'}, 404
             if not place:
-                return {
-                    'message': f'Place with ID {
-                        reviews_data["place_id"]} not found'}, 404
+                return {'message': f'Place with ID {reviews_data["place_id"]} not found'}, 404
 
             # Création de l'avis une fois toutes les validations passées
             review = hbnb_facade.create_review({

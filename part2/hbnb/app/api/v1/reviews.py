@@ -20,6 +20,12 @@ review_model = api.model('Review', {
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
+# Modèle pour la mise à jour d'un avis
+review_update_model = api.model('ReviewUpdate', {
+    'text': fields.String(required=False, description='Text of the review'),
+    'rating': fields.String(required=False, description='Rating of the place (1-5), must be an integer')
+})
+
 
 @api.route('/')
 class ReviewList(Resource):
@@ -184,7 +190,7 @@ class ReviewResource(Resource):
             print(f"Error retrieving review: {str(e)}")
             return {'message': f'An error occurred: {str(e)}'}, 500
 
-    @api.expect(review_model)
+    @api.expect(review_update_model)
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
@@ -245,7 +251,13 @@ class ReviewResource(Resource):
             if 'text' in review_data:
                 updated_data['text'] = review_data['text']
             if 'rating' in review_data:
-                updated_data['rating'] = rating
+                try:
+                    rating_value = int(review_data['rating'])
+                    if rating_value < 1 or rating_value > 5:
+                        return {'message': 'Rating must be between 1 and 5'}, 400
+                    updated_data['rating'] = rating_value
+                except (ValueError, TypeError):
+                    return {'message': 'Rating must be a number between 1 and 5'}, 400
 
             # Mise à jour de l'avis via la façade
             update_review = hbnb_facade.updated_review(review_id, updated_data)

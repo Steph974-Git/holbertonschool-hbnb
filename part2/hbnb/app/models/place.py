@@ -1,10 +1,17 @@
 #!/usr/bin/python3
 from app.models.base_model import BaseModel
+from app.models.user import User
 
 
 class Place(BaseModel):
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
+            # Validation du propriétaire
+        if owner is None:
+            raise ValueError("Owner cannot be None")
+        
+        if not isinstance(owner, User):
+            raise ValueError("Owner must be a User object")
 
         # Ici on vérifie si le titre existe et ne dépasse pas 100 charactères.
         if not title or len(title) > 100:

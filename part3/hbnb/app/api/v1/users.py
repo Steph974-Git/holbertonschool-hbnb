@@ -31,7 +31,7 @@ class UserList(Resource):
         """
         try:
             user_data = api.payload
-
+    
             # Validation de l'email avec regex pour s'assurer
             # qu'il respecte le format standard
             # et ne contient pas de points consécutifs ou multiples @
@@ -62,7 +62,6 @@ class UserList(Resource):
             # Validation du mot de passe
             if not user_data.get('password') or len(user_data['password']) < 8:
                 return {'error': 'Password is required and must be at least 8 characters long'}, 400
-            
 
             # Création de l'utilisateur après validation
             new_user = facade.create_user(user_data)

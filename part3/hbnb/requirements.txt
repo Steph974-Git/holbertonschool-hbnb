@@ -1,3 +1,4 @@
 flask
 flask-restx
 SQLAlchemy
+flask-bcrypt

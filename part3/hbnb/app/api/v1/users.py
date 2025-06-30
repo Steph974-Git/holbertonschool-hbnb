@@ -65,8 +65,7 @@ class UserList(Resource):
 
             # Création de l'utilisateur après validation
             new_user = facade.create_user(user_data)
-            return {'id': new_user.id, 'first_name': new_user.first_name,
-                    'last_name': new_user.last_name, 'email': new_user.email, 'message': 'User successfully '
+            return {'id': new_user.id, 'message': 'User successfully '
                     'registered'}, 201
         
         except ValueError as e:

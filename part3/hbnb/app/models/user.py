@@ -2,9 +2,7 @@
 """User model module for the HBNB application
 """
 from app.models.base_model import BaseModel
-from flask_bcrypt import Bcrypt
-
-bcrypt = Bcrypt()
+from app import bcrypt
 """User class for representing users in the application
 """
 
@@ -39,7 +37,7 @@ class User(BaseModel):
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
-        self.password = password
+        self.hash_password(password)
 
     def hash_password(self, password):
         """Hashes the password before storing it."""

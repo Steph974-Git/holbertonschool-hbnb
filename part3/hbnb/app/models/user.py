@@ -2,19 +2,23 @@
 """User model module for the HBNB application
 """
 from app.models.base_model import BaseModel
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 """User class for representing users in the application
 """
 
 
 class User(BaseModel):
 
-    def __init__(self, email, first_name, last_name, is_admin=False):
+    def __init__(self, email, first_name, last_name, password, is_admin=False):
         """Initialize a new User instance with validation
 
         Args:
             email (str): User's email address
             first_name (str, optional): User's first name. Defaults to "".
             last_name (str, optional): User's last name. Defaults to "".
+            password (str): User's password.
             is_admin (bool, optional): Admin status. Defaults to False.
 
         Raises:
@@ -35,3 +39,12 @@ class User(BaseModel):
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = is_admin
+        self.password = password
+
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)

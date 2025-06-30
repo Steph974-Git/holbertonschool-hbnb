@@ -11,7 +11,8 @@ user_model = api.model('User', {
                                 description='First name of the user'),
     'last_name': fields.String(required=True,
                                description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user')
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True, description='Password for the user account')
 })
 
 
@@ -57,11 +58,18 @@ class UserList(Resource):
                 return {
                     'error': 'Last name is required and must not'
                     'exceed 50 characters'}, 400
+            
+            # Validation du mot de passe
+            if not user_data.get('password') or len(user_data['password']) < 8:
+                return {'error': 'Password is required and must be at least 8 characters long'}, 400
+            
 
             # Création de l'utilisateur après validation
             new_user = facade.create_user(user_data)
             return {'id': new_user.id, 'first_name': new_user.first_name,
-                    'last_name': new_user.last_name, 'email': new_user.email}, 201
+                    'last_name': new_user.last_name, 'email': new_user.email, 'message': 'User successfully '
+                    'registered'}, 201
+        
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:

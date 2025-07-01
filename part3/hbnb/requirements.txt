@@ -3,3 +3,5 @@ flask-restx
 SQLAlchemy
 flask-bcrypt
 flask-jwt-extended
+sqlalchemy
+flask-sqlalchemy

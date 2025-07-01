@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from app import db  # Assuming you have set up SQLAlchemy in your Flask app
-from app.models import User, Place, Review, Amenity  # Import your models
+from app.models.user import User # Import your models
 
 class Repository(ABC):
     @abstractmethod
@@ -60,6 +59,7 @@ class SQLAlchemyRepository(Repository):
         self.model = model
 
     def add(self, obj):
+        from app import db  # Import local pour éviter l'import circulaire
         db.session.add(obj)
         db.session.commit()
 
@@ -70,6 +70,7 @@ class SQLAlchemyRepository(Repository):
         return self.model.query.all()
 
     def update(self, obj_id, data):
+        from app import db  # Import local pour éviter l'import circulaire
         obj = self.get(obj_id)
         if obj:
             for key, value in data.items():
@@ -77,6 +78,7 @@ class SQLAlchemyRepository(Repository):
             db.session.commit()
 
     def delete(self, obj_id):
+        from app import db  # Import local pour éviter l'import circulaire
         obj = self.get(obj_id)
         if obj:
             db.session.delete(obj)
@@ -84,3 +86,10 @@ class SQLAlchemyRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return self.model.query.filter(getattr(self.model, attr_name) == attr_value).first()
+    
+class UserRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(User)
+
+    def get_user_by_email(self, email):
+        return self.model.query.filter_by(email=email).first()

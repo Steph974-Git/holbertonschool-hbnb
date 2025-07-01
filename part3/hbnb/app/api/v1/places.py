@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_token
 from app.services import facade
 
 # Création du namespace pour les opérations sur les places
@@ -44,6 +45,7 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     @api.response(404, 'Owner not found')
     @api.response(500, 'Internal server error')
+    @jwt_required()
     def post(self):
         """Enregistre un nouvel hébergement.
 
@@ -54,7 +56,11 @@ class PlaceList(Resource):
             dict: Message d'erreur et code HTTP approprié (400, 404, 500) en cas d'échec
         """
         try:
+            current_user = get_jwt_identity()
             place_data = api.payload
+            
+            # Forcer l'utilisateur connecté comme propriétaire
+            place_data['owner_id'] = current_user['id']
 
             # Validation du titre: ne doit pas être vide
             if not place_data.get('title'):
@@ -194,6 +200,7 @@ class PlaceResource(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, place_id):
         """Met à jour les informations d'un hébergement.
 
@@ -238,9 +245,58 @@ class PlaceResource(Resource):
 
             # Mise à jour de l'hébergement après validation
             update_place = facade.update_place(place_id, api.payload)
+            
+            # Vérification d'autorisation manquante
+            current_user = get_jwt_identity()
+            if current_user['id'] != place.owner.id:
+                return {'error': 'Access forbidden'}, 403
+
             return {"message": "Place updated successfully"}, 200
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:
             print(f"Error updating place: {str(e)}")
+            return {'error': 'An unexpected error occurred'}, 500
+
+@api.route('/register')
+class UserRegister(Resource):
+    @api.expect(user_model)
+    @api.response(201, 'User successfully registered')
+    @api.response(400, 'Invalid input data')
+    @api.response(500, 'Internal server error')
+    def post(self):
+        """Enregistre un nouvel utilisateur.
+
+        Crée un nouvel utilisateur avec les données fournies après validation.
+
+        Returns:
+            dict: Les détails de l'utilisateur créé et code HTTP 201 en cas de succès
+            dict: Message d'erreur et code HTTP approprié (400, 500) en cas d'échec
+        """
+        try:
+            user_data = api.payload
+
+            # Validation des données utilisateur
+            if not user_data.get('first_name') or not user_data.get('last_name'):
+                return {'error': 'First name and last name are required'}, 400
+            if not user_data.get('email'):
+                return {'error': 'Email is required'}, 400
+
+            # Vérification de l'unicité de l'email
+            existing_user = facade.get_user_by_email(user_data['email'])
+            if existing_user:
+                return {'error': 'Email already in use'}, 400
+
+            # Création de l'utilisateur
+            new_user = facade.create_user(user_data)
+            access_token = create_access_token(identity={'id': str(new_user.id), 'is_admin': new_user.is_admin})
+            return {
+                'id': new_user.id, 
+                'access_token': access_token,
+                'message': 'User successfully registered'
+            }, 201
+        except ValueError as e:
+            return {'error': str(e)}, 400
+        except Exception as e:
+            print(f"Error registering user: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500

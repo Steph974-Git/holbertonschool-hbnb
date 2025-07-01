@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services import facade
 import re
 
@@ -119,10 +120,13 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @api.response(500, 'Internal server error')
     # Sans validate=True pour permettre les mises à jour partielles
+    @jwt_required()
     @api.expect(user_model)
     def put(self, user_id):
-        """Update user details.
+        """Update user details"""
+        current_user = get_jwt_identity()
 
+        """"
         Args:
             user_id: The unique identifier of the user to update
 
@@ -130,6 +134,10 @@ class UserResource(Resource):
             Updated user details with HTTP 200 or an error with HTTP 400/404/500.
         """
         try:
+            # Vérifier que l'utilisateur modifie ses propres données
+            if current_user['id'] != user_id:
+                return {'error': 'Access forbidden'}, 403
+            
             # Vérifier que l'utilisateur existe
             user = facade.get_user(user_id)
             if not user:

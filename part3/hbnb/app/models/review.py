@@ -11,8 +11,8 @@ class Review(BaseModel):
     __tablename__ = 'reviews'
 
 
-    text = db.Column(db.String, nullable=False)
-    rating = db.Column(db.Integer(1-5))
+    text = db.Column(db.String(), nullable=False)
+    rating = db.Column(db.Integer(), nullable=False)
 
     def __init__(self, text, rating, place, user):
         """Initialize a new Review with validation

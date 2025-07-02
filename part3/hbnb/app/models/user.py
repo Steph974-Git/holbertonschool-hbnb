@@ -2,12 +2,19 @@
 """User model module for the HBNB application
 """
 from app.models.base_model import BaseModel
-from app import bcrypt
+from app import bcrypt, db
 """User class for representing users in the application
 """
 
 
 class User(BaseModel):
+    __tablename__ = 'users'
+
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     def __init__(self, email, first_name, last_name, password, is_admin=False):
         """Initialize a new User instance with validation

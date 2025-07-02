@@ -1,8 +1,25 @@
 #!/usr/bin/python3
 from app.models.base_model import BaseModel
+from app import db
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
+place_amenity = db.Table('place_amenity',
+    Column('place_id', Integer, ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', Integer, ForeignKey('amenities.id'), primary_key=True)
+)
 
 class Place(BaseModel):
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
+    price = db.Column(db.Float(), nullable=False)
+    latitude = db.Column(db.Float(), nullable=False)
+    longitude = db.Column(db.Float(), nullable=False)
+    amenities = relationship('Amenity', secondary=place_amenity, lazy='subquery',
+                           backref=db.backref('places', lazy=True))
+
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
 

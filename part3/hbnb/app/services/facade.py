@@ -4,59 +4,27 @@ Ce module implémente le pattern Façade pour centraliser l'accès aux fonctionn
 de l'application. Il gère l'interaction avec les repositories et fournit une interface
 unifiée pour toutes les opérations sur les modèles.
 """
-from app.persistence.repository import InMemoryRepository, SQLAlchemyRepository
+from app.persistence.repository import SQLAlchemyRepository, UserRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
 
-# Repositories globaux pour le partage de données entre les instances
-_user_repo = InMemoryRepository()
-_place_repo = InMemoryRepository()
-_review_repo = InMemoryRepository()
-_amenity_repo = InMemoryRepository()
-_initialized = False  # Variable globale de contrôle d'initialisation
-
 
 class HBnBFacade:
     """Façade pour accéder aux fonctionnalités de l'application.
 
-    Cette classe implémente le pattern Singleton pour assurer qu'une seule
-    instance de la façade existe dans l'application, permettant ainsi un
-    accès unifié aux données.
+    Cette classe centralise l'accès aux repositories et fournit une interface
+    unifiée pour toutes les opérations sur les modèles.
     """
-    _instance = None
-
-    def __new__(cls):
-        """Implémentation du pattern Singleton.
-
-        Returns:
-            HBnBFacade: L'instance unique de la façade.
-        """
-        if cls._instance is None:
-            cls._instance = super(HBnBFacade, cls).__new__(cls)
-        return cls._instance
 
     def __init__(self):
-        """Initialise la façade avec les repositories.
-
-        Utilise les repositories globaux pour assurer que toutes les instances
-        partagent les mêmes données.
-        """
-        self.user_repository = SQLAlchemyRepository(User)  # Switched to SQLAlchemyRepository
-        self.place_repository = SQLAlchemyRepository(Place)
-        self.review_repository = SQLAlchemyRepository(Review)
-        self.amenity_repository = SQLAlchemyRepository(Amenity)
-
-        global _initialized
-        if not _initialized:
-            # Utiliser les repositories globaux
-            self.user_repo = _user_repo
-            self.place_repo = _place_repo
-            self.review_repo = _review_repo
-            self.amenity_repo = _amenity_repo
-            _initialized = True
-            print("HBnBFacade initialized with global repositories")
+        """Initialise la façade avec les repositories."""
+        self.user_repo = UserRepository()
+        # TODO: Autres repositories seront ajoutés dans les prochaines tâches
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
 
     def create_user(self, user_data):
         """Crée un nouvel utilisateur.
@@ -68,6 +36,7 @@ class HBnBFacade:
             User: L'objet utilisateur créé.
         """
         user = User(**user_data)
+        user.hash_password(user_data['password'])
         self.user_repo.add(user)
         return user
 
@@ -173,7 +142,7 @@ class HBnBFacade:
         Returns:
             User: L'objet utilisateur ou None s'il n'existe pas.
         """
-        return self.user_repo.get_by_attribute('email', email)
+        return self.user_repo.get_user_by_email(email)
 
     def create_amenity(self, name):
         """Crée un nouvel équipement.
@@ -404,47 +373,3 @@ class HBnBFacade:
 
         # Return True pour indiquer que la suppression a réussi
         return True
-
-    def create_user(self, user_data):
-        user = User(**user_data)
-        self.user_repository.add(user)
-        return user
-
-    def get_user_by_id(self, user_id):
-        return self.user_repository.get(user_id)
-
-    def get_all_users(self):
-        return self.user_repository.get_all()
-    
-    def create_place(self, place_data):
-        place = Place(**place_data)
-        self.user_repository.add(place)
-        return place
-
-    def get_place_by_id(self, place_id):
-        return self.place_repository.get(place_id)
-
-    def get_all_places(self):
-        return self.place_repository.get_all()
-    
-    def create_ameneties(self, amenity_data):
-        amenity = Amenity(**amenity_data)
-        self.user_repository.add(amenity)
-        return amenity
-
-    def get_amenity_by_id(self, amennity_id):
-        return self.amenity_repository.get(amennity_id)
-
-    def get_all_amenities(self):
-        return self.amenity_repository.get_all()
-    
-    def create_reviews(self, review_data):
-        review = Review(**review_data)
-        self.review_repository.add(review)
-        return review
-
-    def get_review_by_id(self, review_id):
-        return self.review_repository.get(review_id)
-
-    def get_all_reviews(self):
-        return self.review_repository.get_all()

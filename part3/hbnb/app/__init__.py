@@ -22,7 +22,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     with app.app_context():
         from app.models import init_models
         models = init_models()
-        db.create_all()  # AJOUTER CETTE LIGNE CRUCIALE
+        db.create_all()
 
     from app.api.v1.users import api as users_ns
     # Importation du namespace des amenities

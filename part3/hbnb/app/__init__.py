@@ -36,5 +36,5 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(amenities_ns, path='/api/v1/amenities')
     api.add_namespace(places_ns, path='/api/v1/places')
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
-    api.add_namespace(auth_ns, path='/api/vi/auth')
+    api.add_namespace(auth_ns, path='/api/v1/auth')
     return app

@@ -14,12 +14,10 @@ user_model = api.model('User', {
     'password': fields.String(required=True, description='Password for the user account')
 })
 
-# Modèle pour mise à jour utilisateur (flexible selon le rôle)
-user_update_model = api.model('UserUpdate', {
+# CORRECTION: Modèle UNIQUEMENT pour first_name et last_name
+user_input_model = api.model('UserInput', {
     'first_name': fields.String(required=False, description='First name of the user'),
-    'last_name': fields.String(required=False, description='Last name of the user'),
-    'email': fields.String(required=False, description='Email of the user (admin only)'),
-    'password': fields.String(required=False, description='Password of the user (admin only)')
+    'last_name': fields.String(required=False, description='Last name of the user')
 })
 
 
@@ -104,25 +102,19 @@ class UserResource(Resource):
             print(f"Error retrieving user: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
 
-    @api.expect(user_update_model)
+    @api.expect(user_input_model)
     @api.response(200, 'User successfully updated')
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Access forbidden')
+    @api.response(403, 'Access denied')
     @api.response(404, 'User not found')
-    @api.response(500, 'Internal server error')
     @jwt_required()
     def put(self, user_id):
-        """Update user details
-        
-        Regular users can only update their own first_name and last_name.
-        Admins can update any user's details including email and password.
-        """
+        """Update user information (TASK REQUIREMENT: no email/password modification)"""
         current_user = get_jwt_identity()
 
         try:
-            # Vérifier que l'utilisateur modifie ses propres données (sauf si admin)
-            if not current_user.get('is_admin', False) and current_user['id'] != user_id:
-                return {'error': 'Access forbidden'}, 403
+            # TASK REQUIREMENT: Vérifier que l'utilisateur modifie ses propres données
+            if current_user['id'] != user_id:
+                return {'error': 'Unauthorized action'}, 403
             
             # Vérifier que l'utilisateur existe
             user = facade.get_user(user_id)
@@ -131,16 +123,12 @@ class UserResource(Resource):
 
             user_data = api.payload
 
-            # Validation des champs autorisés selon le rôle
-            if not current_user.get('is_admin', False):
-                # Utilisateurs normaux : seulement first_name et last_name
-                if 'email' in user_data or 'password' in user_data:
-                    return {'error': 'Regular users cannot modify email or password'}, 403
-                allowed_fields = {'first_name', 'last_name'}
-            else:
-                # Admins : tous les champs
-                allowed_fields = {'first_name', 'last_name', 'email', 'password'}
+            # TASK REQUIREMENT: Empêcher la modification de email et password
+            if 'email' in user_data or 'password' in user_data:
+                return {'error': 'You cannot modify email or password'}, 400
 
+            # Seuls first_name et last_name sont autorisés (+ autres champs non email/password)
+            allowed_fields = {'first_name', 'last_name'}
             provided_fields = set(user_data.keys())
             invalid_fields = provided_fields - allowed_fields
             
@@ -163,22 +151,6 @@ class UserResource(Resource):
                     return {'error': 'Last name cannot be empty'}, 400
                 if len(user_data['last_name']) > 50:
                     return {'error': 'Last name must not exceed 50 characters'}, 400
-
-            # Validations supplémentaires pour les admins
-            if current_user.get('is_admin', False):
-                if 'email' in user_data:
-                    email_regex = re.compile(
-                        r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                    if not email_regex.match(user_data['email']):
-                        return {'error': 'Invalid email format'}, 400
-                    
-                    if user_data['email'] != user.email:
-                        existing_user = facade.get_user_by_email(user_data['email'])
-                        if existing_user and existing_user.id != user_id:
-                            return {'error': 'Email already registered to another user'}, 400
-                            
-                if 'password' in user_data and len(user_data['password']) < 8:
-                    return {'error': 'Password must be at least 8 characters long'}, 400
 
             # Mise à jour de l'utilisateur
             updated_user = facade.update_user(user_id, user_data)

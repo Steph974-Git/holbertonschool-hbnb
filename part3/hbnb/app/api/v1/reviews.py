@@ -64,6 +64,16 @@ class ReviewList(Resource):
             if not place:
                 return {'error': f'Place with ID {reviews_data["place_id"]} not found'}, 404
 
+            # VALIDATION: Empêcher l'auto-review
+            if place.owner.id == current_user['id']:
+                return {'error': 'You cannot review your own place'}, 400
+
+            # VALIDATION: Empêcher les reviews dupliquées
+            existing_reviews = facade.get_reviews_by_place(reviews_data['place_id'])
+            for review in existing_reviews:
+                if review.user.id == current_user['id']:
+                    return {'error': 'You have already reviewed this place'}, 400
+
             # Création de l'avis une fois toutes les validations passées
             review = facade.create_review({
                 'text': reviews_data['text'],

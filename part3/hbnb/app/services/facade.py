@@ -238,8 +238,16 @@ class HBnBFacade:
         if not user:
             return None
 
-        # Met à jour l'utilisateur et retourne l'objet mis à jour
-        self.user_repo.update(user_id, user_data)
+        # Si le mot de passe est modifié, le hasher
+        if 'password' in user_data:
+            user.hash_password(user_data['password'])
+            # Supprimer le password du dict pour éviter de l'écraser
+            user_data.pop('password')
+
+        # Met à jour les autres champs et retourne l'objet mis à jour
+        if user_data:  # S'il reste des champs à mettre à jour
+            self.user_repo.update(user_id, user_data)
+        
         return self.user_repo.get(user_id)
 
     def create_review(self, review_data):
@@ -308,7 +316,7 @@ class HBnBFacade:
                 place_reviews.append(review)
         return place_reviews
 
-    def updated_review(self, review_id, review_data):
+    def update_review(self, review_id, review_data):  # Renommer de "updated_review"
         """Met à jour un avis existant.
 
         Args:

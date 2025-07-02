@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from app.models.base_model import BaseModel
 from app import db
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 place_amenity = db.Table('place_amenity',
@@ -19,8 +19,10 @@ class Place(BaseModel):
     longitude = db.Column(db.Float(), nullable=False)
     amenities = relationship('Amenity', secondary=place_amenity, lazy='subquery',
                            backref=db.backref('places', lazy=True))
+    user_id = db.Column(db.String(36), ForeignKey('users.id'), nullable=False)
+    reviews = relationship('Review', backref='place', lazy=True)
 
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(self, title, description, price, latitude, longitude):
         super().__init__()
 
         # Ici on vérifie si le titre existe et ne dépasse pas 100 charactères.
@@ -42,14 +44,3 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
-        self.reviews = []  # Liste pour les reviews
-        self.amenities = []  # Liste pour les amenities
-
-    def add_review(self, review):
-        """Add a review to the place."""
-        self.reviews.append(review)
-
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        self.amenities.append(amenity)

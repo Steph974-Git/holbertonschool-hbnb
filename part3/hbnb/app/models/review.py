@@ -2,9 +2,8 @@
 """Review model module for the HBNB application"""
 
 from app.models.base_model import BaseModel
-from app.models.user import User
-from app.models.place import Place
 from app import db
+from sqlalchemy import ForeignKey
 
 
 class Review(BaseModel):
@@ -13,8 +12,10 @@ class Review(BaseModel):
 
     text = db.Column(db.String(), nullable=False)
     rating = db.Column(db.Integer(), nullable=False)
+    user_id = db.Column(db.String(36), ForeignKey('users.id'), nullable=False)
+    place_id = db.Column(db.String(36), ForeignKey('places.id'), nullable=False)
 
-    def __init__(self, text, rating, place, user):
+    def __init__(self, text, rating):
         """Initialize a new Review with validation
 
         Args:
@@ -32,12 +33,7 @@ class Review(BaseModel):
             raise ValueError("Review text cannot be empty")
         if not isinstance(rating, int) or int(rating) < 1 or int(rating) > 5:
             raise ValueError("Rating must be an integer between 1 and 5")
-        if not isinstance(place, Place):
-            raise ValueError("Place must be an instance of Place")
-        if not isinstance(user, User):
-            raise ValueError("User must be an instance of User")
 
         self.text = text
         self.rating = rating
-        self.place = place
-        self.user = user
+

@@ -3,6 +3,7 @@
 """
 from app.models.base_model import BaseModel
 from app import bcrypt, db
+from sqlalchemy.orm import relationship
 """User class for representing users in the application
 """
 
@@ -15,6 +16,8 @@ class User(BaseModel):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    places = relationship('Place', backref='owner', lazy=True)
+    reviews = relationship('Review', backref='user', lazy=True)
 
     def __init__(self, email, first_name, last_name, password, is_admin=False):
         """Initialize a new User instance with validation

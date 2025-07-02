@@ -1,5 +1,5 @@
 #!usr/bin/python3
-from app import db
+from app.models import db
 import uuid
 from datetime import datetime
 '''

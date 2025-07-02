@@ -2,8 +2,8 @@
 """User model module for the HBNB application
 """
 from app.models.base_model import BaseModel
-from app import bcrypt, db
 from sqlalchemy.orm import relationship
+from app.models import db, bcrypt
 """User class for representing users in the application
 """
 

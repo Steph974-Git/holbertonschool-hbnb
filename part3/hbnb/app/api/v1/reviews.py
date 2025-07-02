@@ -68,8 +68,8 @@ class ReviewList(Resource):
             review = facade.create_review({
                 'text': reviews_data['text'],
                 'rating': rating,
-                'user': user,
-                'place': place
+                'user_id': reviews_data['user_id'],
+                'place_id': reviews_data['place_id']
             })
 
             # Construction de la réponse avec les données de l'avis créé
@@ -78,7 +78,7 @@ class ReviewList(Resource):
                 'text': review.text,
                 'rating': review.rating,
                 'user_id': user.id,
-                'place_id': review.place.id,
+                'place_id': reviews_data['place_id'],
                 'created_at': review.created_at.isoformat()
             }, 201
 

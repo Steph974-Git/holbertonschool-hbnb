@@ -21,7 +21,6 @@ class HBnBFacade:
     def __init__(self):
         """Initialise la façade avec les repositories."""
         self.user_repo = UserRepository()
-        # TODO: Autres repositories seront ajoutés dans les prochaines tâches
         self.place_repo = SQLAlchemyRepository(Place)
         self.review_repo = SQLAlchemyRepository(Review)
         self.amenity_repo = SQLAlchemyRepository(Amenity)
@@ -36,7 +35,6 @@ class HBnBFacade:
             User: L'objet utilisateur créé.
         """
         user = User(**user_data)
-        user.hash_password(user_data['password'])
         self.user_repo.add(user)
         return user
 
@@ -63,7 +61,7 @@ class HBnBFacade:
         amenities = place_data.pop('amenities', [])
 
         # Crée l'objet Place avec le propriétaire et les attributs restants
-        place = Place(owner=owner, **place_data)
+        place = Place(**place_data)
 
         # Ajoute les amenities à la place si elles existent
         for amenity_id in amenities:
@@ -245,26 +243,24 @@ class HBnBFacade:
         return self.user_repo.get(user_id)
 
     def create_review(self, review_data):
-        """Crée un nouvel avis.
+        """Crée un nouvel avis avec les foreign keys."""
+        # Extraire user_id et place_id depuis review_data
+        user_id = review_data.get('user_id')
+        place_id = review_data.get('place_id')
 
-        Args:
-            review_data (dict): Données de l'avis incluant texte, note,
-                               utilisateur et hébergement.
+        if not user_id or not place_id:
+            raise ValueError("user_id and place_id are required")
 
-        Returns:
-            Review: L'objet avis créé.
-        """
-        # Crée l'objet Review avec les données fournies
+        # Créer le review avec les bonnes données
         review = Review(
             text=review_data['text'],
-            rating=review_data['rating'],
-            user=review_data['user'],
-            place=review_data['place'])
+            rating=review_data['rating']
+        )
 
-        # Ajoute la review à l'hébergement concerné
-        review_data['place'].add_review(review)
+        # Assigner les foreign keys
+        review.user_id = user_id
+        review.place_id = place_id
 
-        # Ajoute la review au repository
         self.review_repo.add(review)
         return review
 

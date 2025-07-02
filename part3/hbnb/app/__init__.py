@@ -4,8 +4,9 @@ from flask_bcrypt import Bcrypt
 from flask_restx import Api
 from flask_jwt_extended import JWTManager
 
-db = SQLAlchemy()
-bcrypt = Bcrypt()
+# Import des extensions depuis models
+from app.models import db, bcrypt
+
 jwt = JWTManager()
 
 def create_app(config_class="config.DevelopmentConfig"):
@@ -18,9 +19,11 @@ def create_app(config_class="config.DevelopmentConfig"):
     jwt.init_app(app)
     db.init_app(app)
     bcrypt.init_app(app)
-    # Placeholder for API namespaces (endpoints will be added later)
-    # Additional namespaces for places, reviews, and amenities will be added
-    # later
+
+    # Initialiser les modèles APRÈS les extensions
+    with app.app_context():
+        from app.models import init_models
+        models = init_models()
 
     from app.api.v1.users import api as users_ns
     # Importation du namespace des amenities

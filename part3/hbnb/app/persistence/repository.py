@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from app.models.user import User # Import your models
+from app.models import db
 
 class Repository(ABC):
     @abstractmethod
@@ -59,7 +60,6 @@ class SQLAlchemyRepository(Repository):
         self.model = model
 
     def add(self, obj):
-        from app import db  # Import local pour éviter l'import circulaire
         db.session.add(obj)
         db.session.commit()
 
@@ -70,7 +70,6 @@ class SQLAlchemyRepository(Repository):
         return self.model.query.all()
 
     def update(self, obj_id, data):
-        from app import db  # Import local pour éviter l'import circulaire
         obj = self.get(obj_id)
         if obj:
             for key, value in data.items():
@@ -78,7 +77,6 @@ class SQLAlchemyRepository(Repository):
             db.session.commit()
 
     def delete(self, obj_id):
-        from app import db  # Import local pour éviter l'import circulaire
         obj = self.get(obj_id)
         if obj:
             db.session.delete(obj)

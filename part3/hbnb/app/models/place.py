@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from app.models.base_model import BaseModel
-from app import db
+from app.models import db, bcrypt
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 

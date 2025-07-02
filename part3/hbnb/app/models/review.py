@@ -2,7 +2,7 @@
 """Review model module for the HBNB application"""
 
 from app.models.base_model import BaseModel
-from app import db
+from app.models import db, bcrypt
 from sqlalchemy import ForeignKey
 
 

@@ -14,91 +14,17 @@ user_model = api.model('User', {
     'password': fields.String(required=True, description='Password for the user account')
 })
 
-# Modèle pour mise à jour utilisateur normal
+# Modèle pour mise à jour utilisateur (flexible selon le rôle)
 user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(required=False, description='First name of the user'),
-    'last_name': fields.String(required=False, description='Last name of the user')
-})
-
-# Modèle pour création admin
-user_admin_model = api.model('UserAdmin', {
-    'first_name': fields.String(required=True, description='First name of the user'),
-    'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='Password for the user account'),
-    'is_admin': fields.Boolean(required=False, description='Admin status (admin only)')
-})
-
-# Modèle pour mise à jour admin
-user_admin_update_model = api.model('UserAdminUpdate', {
-    'first_name': fields.String(required=False, description='First name of the user'),
     'last_name': fields.String(required=False, description='Last name of the user'),
-    'email': fields.String(required=False, description='Email of the user'),
-    'password': fields.String(required=False, description='Password of the user')
+    'email': fields.String(required=False, description='Email of the user (admin only)'),
+    'password': fields.String(required=False, description='Password of the user (admin only)')
 })
 
 
 @api.route('/')
 class UserList(Resource):
-    @api.expect(user_model, validate=True)
-    @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Admin privileges required')
-    @api.response(500, 'Internal server error')
-    @jwt_required()
-    def post(self):
-        """Create a new user (ADMIN ONLY)"""
-        current_user = get_jwt_identity()
-
-        # Vérification des privilèges admin
-        if not current_user.get('is_admin', False):
-            return {'error': 'Admin privileges required'}, 403
-        
-        try:
-            user_data = api.payload
-            
-            # L'admin peut définir le statut admin (par défaut False)
-            if 'is_admin' not in user_data:
-                user_data['is_admin'] = False
-    
-            # Validation de l'email
-            email_regex = re.compile(
-                r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-            if not email_regex.match(user_data.get('email', '')):
-                return {'error': 'Invalid email format'}, 400
-
-            # Vérification que l'email n'est pas déjà utilisé
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user:
-                return {'error': 'Email already registered'}, 400
-
-            # Validation des champs
-            if not user_data.get('first_name') or len(user_data['first_name']) > 50:
-                return {'error': 'First name is required and must not exceed 50 characters'}, 400
-
-            if not user_data.get('last_name') or len(user_data['last_name']) > 50:
-                return {'error': 'Last name is required and must not exceed 50 characters'}, 400
-            
-            if not user_data.get('password') or len(user_data['password']) < 8:
-                return {'error': 'Password is required and must be at least 8 characters long'}, 400
-
-            # Création de l'utilisateur
-            new_user = facade.create_user(user_data)
-            return {
-                'id': new_user.id, 
-                'first_name': new_user.first_name,
-                'last_name': new_user.last_name,
-                'email': new_user.email,
-                'is_admin': new_user.is_admin
-            }, 201
-        
-        except ValueError as e:
-            return {'error': str(e)}, 400
-        except Exception as e:
-            print(f"Error creating user: {str(e)}")
-            return {'error': 'An unexpected error occurred'}, 500
-
     @api.response(200, 'Users retrieved successfully')
     @api.response(500, 'Internal server error')
     def get(self):
@@ -178,15 +104,19 @@ class UserResource(Resource):
             print(f"Error retrieving user: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
 
+    @api.expect(user_update_model)
     @api.response(200, 'User successfully updated')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Access forbidden')
     @api.response(404, 'User not found')
     @api.response(500, 'Internal server error')
     @jwt_required()
-    @api.expect(user_update_model)
     def put(self, user_id):
-        """Update user details (limited for regular users, full access for admins)"""
+        """Update user details
+        
+        Regular users can only update their own first_name and last_name.
+        Admins can update any user's details including email and password.
+        """
         current_user = get_jwt_identity()
 
         try:
@@ -205,7 +135,7 @@ class UserResource(Resource):
             if not current_user.get('is_admin', False):
                 # Utilisateurs normaux : seulement first_name et last_name
                 if 'email' in user_data or 'password' in user_data:
-                    return {'error': 'You cannot modify your email or password'}, 400
+                    return {'error': 'Regular users cannot modify email or password'}, 403
                 allowed_fields = {'first_name', 'last_name'}
             else:
                 # Admins : tous les champs
@@ -252,88 +182,17 @@ class UserResource(Resource):
 
             # Mise à jour de l'utilisateur
             updated_user = facade.update_user(user_id, user_data)
-            return {'id': updated_user.id, 'first_name': updated_user.first_name,
-                    'last_name': updated_user.last_name, 'email': updated_user.email}, 200
+            return {
+                'id': updated_user.id, 
+                'first_name': updated_user.first_name,
+                'last_name': updated_user.last_name, 
+                'email': updated_user.email
+            }, 200
                     
         except ValueError as e:
             return {'error': str(e)}, 400
         except Exception as e:
             print(f"Error updating user: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
-
-
-@api.route('/admin/<user_id>')
-class AdminUserResource(Resource):
-    @api.expect(user_admin_update_model)
-    @api.response(200, 'User successfully updated by admin')
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Admin access required')
-    @api.response(404, 'User not found')
-    @api.response(500, 'Internal server error')
-    @jwt_required()
-    def put(self, user_id):
-        """Update any user's details (Admin only - can modify email and password)"""
-        current_user = get_jwt_identity()
-
-        # Vérification des privilèges admin
-        if not current_user.get('is_admin', False):
-            return {'error': 'Admin access required'}, 403
-        
-        try:
-            # Vérifier que l'utilisateur existe
-            user = facade.get_user(user_id)
-            if not user:
-                return {'error': 'User not found'}, 404
-        
-            user_data = api.payload
-
-            # Validation de l'email si modifié
-            if 'email' in user_data:
-                email_regex = re.compile(
-                    r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                if not email_regex.match(user_data['email']):
-                    return {'error': 'Invalid email format'}, 400
-                
-                # Vérifier unicité email
-                if user_data['email'] != user.email:
-                    existing_user = facade.get_user_by_email(user_data['email'])
-                    if existing_user and existing_user.id != user_id:
-                        return {'error': 'Email already registered to another user'}, 400
-                        
-            # Validation du password si modifié
-            if 'password' in user_data and len(user_data['password']) < 8:
-                return {'error': 'Password must be at least 8 characters long'}, 400
-            
-            # Validation des autres champs
-            if 'first_name' in user_data:
-                if not user_data['first_name'] or not user_data['first_name'].strip():
-                    return {'error': 'First name cannot be empty'}, 400
-                if len(user_data['first_name']) > 50:
-                    return {'error': 'First name must not exceed 50 characters'}, 400
-                    
-            if 'last_name' in user_data:
-                if not user_data['last_name'] or not user_data['last_name'].strip():
-                    return {'error': 'Last name cannot be empty'}, 400
-                if len(user_data['last_name']) > 50:
-                    return {'error': 'Last name must not exceed 50 characters'}, 400
-                    
-            # Mise à jour par l'admin
-            updated_user = facade.update_user(user_id, user_data)
-            return {
-                'id': updated_user.id,
-                'first_name': updated_user.first_name,
-                'last_name': updated_user.last_name,
-                'email': updated_user.email,
-                'message': 'User updated successfully by admin'
-            }, 200
-            
-        except ValueError as e:
-            return {'error': str(e)}, 400
-        except Exception as e:
-            print(f"Error updating user by admin: {str(e)}")
-            return {'error': 'An unexpected error occurred'}, 500
-
-
-
 
 

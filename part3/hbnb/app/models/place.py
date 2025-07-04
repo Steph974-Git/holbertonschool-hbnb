@@ -20,9 +20,10 @@ class Place(BaseModel):
     amenities = relationship('Amenity', secondary=place_amenity, lazy='subquery',
                            backref=db.backref('places', lazy=True))
     user_id = db.Column(db.String(36), ForeignKey('users.id'), nullable=False)
+    owner = relationship('User', backref='places')
     reviews = relationship('Review', backref='place', lazy=True)
 
-    def __init__(self, title, description, price, latitude, longitude):
+    def __init__(self, title, description, price, latitude, longitude, owner_id):
         super().__init__()
 
         # Ici on vérifie si le titre existe et ne dépasse pas 100 charactères.
@@ -44,3 +45,4 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
+        self.user_id = owner_id

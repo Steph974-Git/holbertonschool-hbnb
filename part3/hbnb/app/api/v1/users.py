@@ -36,8 +36,9 @@ class UserList(Resource):
             return {'error': 'An unexpected error occurred'}, 500
 
 
-@api.route('/register')
+@api.route('/')
 class UserRegistration(Resource):
+    @jwt_required()
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully registered')
     @api.response(400, 'Email already registered')
@@ -47,7 +48,7 @@ class UserRegistration(Resource):
         """Public user registration"""
         try:
             user_data = api.payload
-            
+            current_user = get_jwt_identity
             # Pour l'inscription publique, toujours créer un utilisateur normal
             user_data['is_admin'] = False
     
@@ -56,6 +57,8 @@ class UserRegistration(Resource):
                 r'^(?!.*\.\.)(?!.*@.*@)[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
             if not email_regex.match(user_data.get('email', '')):
                 return {'error': 'Invalid email format'}, 400
+            if not current_user.get('is_admin'):
+                return {'error': 'Admin privileges required'}, 403
 
             # Vérification que l'email n'est pas déjà utilisé
             existing_user = facade.get_user_by_email(user_data['email'])

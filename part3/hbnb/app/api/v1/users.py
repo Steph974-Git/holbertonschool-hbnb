@@ -36,8 +36,6 @@ class UserList(Resource):
             return {'error': 'An unexpected error occurred'}, 500
 
 
-@api.route('/')
-class UserRegistration(Resource):
     @jwt_required()
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully registered')

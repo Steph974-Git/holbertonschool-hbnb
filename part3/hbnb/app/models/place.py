@@ -2,11 +2,12 @@
 from app.models.base_model import BaseModel
 from app.models import db, bcrypt
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.types import CHAR
 from sqlalchemy.orm import relationship
 
 place_amenity = db.Table('place_amenity',
-    Column('place_id', Integer, ForeignKey('places.id'), primary_key=True),
-    Column('amenity_id', Integer, ForeignKey('amenities.id'), primary_key=True)
+    Column('place_id', CHAR(36), ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', CHAR(36), ForeignKey('amenities.id'), primary_key=True)
 )
 
 class Place(BaseModel):
@@ -20,10 +21,9 @@ class Place(BaseModel):
     amenities = relationship('Amenity', secondary=place_amenity, lazy='subquery',
                            backref=db.backref('places', lazy=True))
     user_id = db.Column(db.String(36), ForeignKey('users.id'), nullable=False)
-    owner = relationship('User', backref='places')
     reviews = relationship('Review', backref='place', lazy=True)
 
-    def __init__(self, title, description, price, latitude, longitude, owner_id):
+    def __init__(self, title, description, price, latitude, longitude):
         super().__init__()
 
         # Ici on vérifie si le titre existe et ne dépasse pas 100 charactères.
@@ -45,4 +45,3 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.user_id = owner_id

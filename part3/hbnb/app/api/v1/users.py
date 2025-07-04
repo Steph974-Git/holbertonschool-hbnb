@@ -46,9 +46,12 @@ class UserList(Resource):
         """Public user registration"""
         try:
             user_data = api.payload
-            current_user = get_jwt_identity
+            current_user = get_jwt_identity()
             # Pour l'inscription publique, toujours créer un utilisateur normal
-            user_data['is_admin'] = False
+            if not current_user.get('is_admin', False):
+                return {'error': 'Admin privileges required'}, 403
+            
+            user_data['is_admin'] = user_data.get('is_admin', False)
     
             # Validation de l'email
             email_regex = re.compile(
@@ -113,8 +116,7 @@ class UserResource(Resource):
         current_user = get_jwt_identity()
 
         try:
-            # TASK REQUIREMENT: Vérifier que l'utilisateur modifie ses propres données
-            if current_user['id'] != user_id:
+            if not current_user.get('is_admin', False) and current_user['id'] != user_id:
                 return {'error': 'Unauthorized action'}, 403
             
             # Vérifier que l'utilisateur existe

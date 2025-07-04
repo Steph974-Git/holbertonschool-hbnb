@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
+from app.models import db
 
 
 class HBnBFacade:
@@ -202,6 +203,7 @@ class HBnBFacade:
         # Met à jour le nom et sauvegarde
         amenity.name = name
         amenity.save()  # Mettre à jour le timestamp updated_at
+        db.session.commit()
         return amenity
 
     def get_amenity(self, amenity_id):

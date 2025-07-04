@@ -44,7 +44,7 @@ class UserRegistration(Resource):
     @api.response(400, 'Invalid input data')
     @api.response(500, 'Internal server error')
     def post(self):
-        """Public user registration (creates regular users only)"""
+        """Public user registration"""
         try:
             user_data = api.payload
             
@@ -108,7 +108,7 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @jwt_required()
     def put(self, user_id):
-        """Update user information (TASK REQUIREMENT: no email/password modification)"""
+        """Update user information"""
         current_user = get_jwt_identity()
 
         try:

@@ -45,3 +45,8 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
+
+    def add_amenity(self, amenity):
+        """Ajoute une amenité à cette place."""
+        if amenity not in self.amenities:
+            self.amenities.append(amenity)

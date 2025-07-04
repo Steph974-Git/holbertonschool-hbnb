@@ -63,6 +63,7 @@ class HBnBFacade:
 
         # Crée l'objet Place avec le propriétaire et les attributs restants
         place = Place(**place_data)
+        place.user_id = owner_id
 
         # Ajoute les amenities à la place si elles existent
         for amenity_id in amenities:

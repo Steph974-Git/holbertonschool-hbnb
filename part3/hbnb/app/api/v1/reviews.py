@@ -16,7 +16,7 @@ api = Namespace('reviews', description='Review operations')
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'place_id': fields.String(required=True, description='ID of the place')
+    'place_id': fields.String(required=True, description='ID of the place')  # <-- toujours demandé
 })
 
 
@@ -166,47 +166,35 @@ class ReviewResource(Resource):
         """Update review (Owner or Admin only)"""
         try:
             current_user = get_jwt_identity()
-            
+            review_data = api.payload
+
             # Vérification que l'avis existe
             existing_review = facade.get_review(review_id)
             if not existing_review:
                 return {'error': f'Review with ID {review_id} not found'}, 404
 
-            # TASK 5: Admin bypass OU propriétaire uniquement
             is_admin = current_user.get('is_admin', False)
             user_id = current_user.get('id')
-            
+
             if not is_admin and existing_review.user.id != user_id:
                 return {'error': 'Unauthorized action'}, 403
 
-            review_data = api.payload
+            # Vérifier que le place_id fourni correspond à la review (sécurité)
+            if 'place_id' in review_data and review_data['place_id'] != existing_review.place.id:
+                return {'error': 'Cannot change place_id of a review'}, 400
 
-            # Validation de base des données
-            if not review_data:
-                return {'error': 'No data provided'}, 400
-
-            # Validation spécifique pour chaque champ modifiable
+            # Traiter les champs modifiables
+            updated_data = {}
+            if 'text' in review_data:
+                updated_data['text'] = review_data['text']
             if 'rating' in review_data:
                 try:
                     rating = int(review_data['rating'])
                     if rating < 1 or rating > 5:
                         return {'error': 'Rating must be between 1 and 5'}, 400
+                    updated_data['rating'] = rating
                 except (ValueError, TypeError):
                     return {'error': 'Rating must be a number between 1 and 5'}, 400
-
-            if 'text' in review_data and not review_data['text']:
-                return {'error': 'Review text cannot be empty'}, 400
-
-            # Interdiction de modifier les relations
-            if 'user_id' in review_data or 'place_id' in review_data:
-                return {'error': 'Cannot change user_id or place_id of a review'}, 400
-
-            # Préparation des données à mettre à jour
-            updated_data = {}
-            if 'text' in review_data:
-                updated_data['text'] = review_data['text']
-            if 'rating' in review_data:
-                updated_data['rating'] = rating
 
             # Mise à jour de l'avis via la façade
             updated_review = facade.update_review(review_id, updated_data)
@@ -221,8 +209,6 @@ class ReviewResource(Resource):
                 'updated_at': updated_review.updated_at.isoformat()
             }, 200
 
-        except ValueError as e:
-            return {'error': str(e)}, 400
         except Exception as e:
             print(f"Error updating review: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500

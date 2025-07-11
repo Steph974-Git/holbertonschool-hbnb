@@ -343,7 +343,7 @@ class HBnBFacade:
                 place_reviews.append(review)
         return place_reviews
 
-    def update_review(self, review_id, review_data):  # Renommer de "updated_review"
+    def update_review(self, review_id, review_data):
         """Met à jour un avis existant.
 
         Args:
@@ -371,7 +371,6 @@ class HBnBFacade:
                 raise ValueError(
                     "Rating must be a valid integer between 1 and 5")
 
-        # On met à jour les attributs de la review
         if 'text' in review_data:
             # Validation du texte
             if not review_data['text']:
@@ -382,7 +381,7 @@ class HBnBFacade:
             review.rating = review_data['rating']
 
         # Sauvegarde des modifications
-        review.save()
+        db.session.commit()
         return review
 
     def delete_review(self, review_id):

@@ -52,27 +52,48 @@ class HBnBFacade:
         Raises:
             ValueError: Si le propriétaire spécifié n'existe pas.
         """
-        # Récupère et retire l'ID du propriétaire du dictionnaire
-        owner_id = place_data.pop('owner_id')
-        owner = self.get_user(owner_id)
-        if not owner:
-            raise ValueError("Owner not found")
+        try:
+            # Récupère et retire l'ID du propriétaire du dictionnaire
+            owner_id = place_data.pop('owner_id', None)
+            if owner_id:
+            # Si owner_id fourni manuellement, vérifier qu'il existe
+                owner = self.get_user(owner_id)
+                if not owner:
+                    raise ValueError("Owner not found")
 
-        # Extrait les amenities du dictionnaire si présentes
-        amenities = place_data.pop('amenities', [])
+            # Extrait les amenities du dictionnaire si présentes
+            amenities_ids = place_data.pop('amenities', [])
 
-        # Crée l'objet Place avec le propriétaire et les attributs restants
-        place = Place(**place_data)
-        place.user_id = owner_id
+            # Crée l'objet Place avec les attributs restants
+            place = Place(
+                title=place_data['title'],
+                description=place_data.get('description'),
+                price=place_data['price'],
+                latitude=place_data['latitude'],
+                longitude=place_data['longitude']
+            )
+            
+            # Assigner le propriétaire
+            place.owner_id = owner_id
 
-        # Ajoute les amenities à la place si elles existent
-        for amenity_id in amenities:
-            amenity = self.amenity_repo.get(amenity_id)
-            if amenity:
-                place.add_amenity(amenity)
+            # ✅ CORRECTION : Utiliser place.amenities au lieu de add_amenity
+            if amenities_ids:
+                amenities_objects = []
+                for amenity_id in amenities_ids:
+                    amenity = self.amenity_repo.get(amenity_id)
+                    if amenity:
+                        amenities_objects.append(amenity)
+                place.amenities = amenities_objects
 
-        self.place_repo.add(place)
-        return place
+            # Sauvegarder
+            db.session.add(place)
+            db.session.commit()
+            
+            return place
+            
+        except Exception as e:
+            db.session.rollback()
+            raise e
 
     def get_place(self, place_id):
         """Récupère un hébergement par son ID.
@@ -94,33 +115,36 @@ class HBnBFacade:
         return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
-        """Met à jour un hébergement existant.
+        """Met à jour un hébergement existant."""
+        try:
+            place = self.place_repo.get(place_id)
+            if not place:
+                return None
 
-        Args:
-            place_id (str): ID de l'hébergement à mettre à jour.
-            place_data (dict): Données à mettre à jour, peut inclure une liste d'amenities.
+            # Extrait et traite séparément les amenities
+            amenity_ids = place_data.pop('amenities', [])
+            
+            # Met à jour les autres champs
+            for key, value in place_data.items():
+                if hasattr(place, key):
+                    setattr(place, key, value)
 
-        Returns:
-            Place: L'objet hébergement mis à jour ou None s'il n'existe pas.
-        """
-        # Vérifie que l'hébergement existe
-        place = self.place_repo.get(place_id)
-        if not place:
-            return None
+            # ✅ CORRECTION : Gérer les amenities correctement
+            if amenity_ids:
+                amenities_objects = []
+                for amenity_id in amenity_ids:
+                    amenity = self.amenity_repo.get(amenity_id)
+                    if amenity:
+                        amenities_objects.append(amenity)
+                place.amenities = amenities_objects
 
-        # Extrait et traite séparément les amenities
-        amenity_ids = place_data.pop('amenities', [])
-        self.place_repo.update(place_id, place_data)
-        updated_place = self.place_repo.get(place_id)
-        updated_place.amenities = []
-
-        # Ajoute les nouvelles amenities à l'hébergement
-        for amenity_id in amenity_ids:
-            amenity = self.amenity_repo.get(amenity_id)
-            if amenity:
-                updated_place.add_amenity(amenity)
-
-        return updated_place
+            # Sauvegarder
+            db.session.commit()
+            return place
+            
+        except Exception as e:
+            db.session.rollback()
+            raise e
 
     def get_user(self, user_id):
         """Récupère un utilisateur par son ID.

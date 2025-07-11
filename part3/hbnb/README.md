@@ -1,33 +1,90 @@
 # HBnB - Holberton BnB (Part 3)
 
-## About the project
+## About the Project
 
-HBnB (Holberton BnB) est une application de location de logements inspirée d’Airbnb.  
-Cette troisième partie introduit une architecture professionnelle :  
-- **API RESTful** complète (Flask-RESTx)
-- **Authentification JWT**
+HBnB (Holberton BnB) is a lodging rental application inspired by Airbnb.  
+This third part introduces a professional architecture and advanced features:
+- **Full RESTful API** (Flask-RESTx)
+- **JWT Authentication**
 - **RBAC** (admin/user)
-- **CRUD** pour users, places, amenities, reviews
-- **Gestion des droits** (admin only, ownership)
-- **Validation et gestion d’erreurs robuste**
-- **Scripts SQL** pour la base et les données initiales
+- **Complete CRUD** for users, places, amenities, reviews
+- **Ownership and admin rights management**
+- **Robust validation and error handling**
+- **SQL scripts** for schema and initial data
 
 ## Architecture
 
-- **API Layer** : Flask-RESTx, endpoints versionnés, Swagger UI
-- **Business Logic Layer** : Facade (HBnBFacade), centralisation des règles métier
-- **Model Layer** : SQLAlchemy, validation forte, relations ORM
-- **Persistence Layer** : Repository pattern (SQLAlchemyRepository)
-- **Tests** : Unittests et intégration (pytest)
+- **API Layer**: Flask-RESTx, versioned endpoints, Swagger UI
+- **Business Logic Layer**: Facade (HBnBFacade), centralizes business rules
+- **Model Layer**: SQLAlchemy, strong validation, ORM relationships
+- **Persistence Layer**: Repository pattern (SQLAlchemyRepository)
+- **Testing**: Unittests and integration (pytest)
 
-## Main Features
+### Project Structure
 
-- **RBAC** : Seul l’admin peut créer des users, gérer les amenities, bypasser l’ownership
-- **JWT** : Authentification sécurisée, endpoints protégés
-- **CRUD** : Complet sur users, places, amenities, reviews
-- **Gestion des erreurs** : Statuts HTTP cohérents, messages explicites
-- **SQL** : Scripts pour créer, peupler et tester la base
-- **Logs** : Pour le debug et la traçabilité
+```
+hbnb/
+├── app/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       ├── users.py         # User endpoints (RBAC, JWT)
+│   │       ├── places.py        # Place endpoints (ownership, amenities)
+│   │       ├── amenities.py     # Amenity endpoints (admin only for POST/PUT)
+│   │       ├── reviews.py       # Review endpoints
+│   │       └── views/           # (optional) extra views
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── place.py
+│   │   ├── amenity.py
+│   │   ├── review.py
+│   │   └── base_model.py
+│   ├── persistence/
+│   │   ├── __init__.py
+│   │   └── repository.py        # Repository pattern (SQLAlchemyRepository)
+│   └── services/
+│       ├── __init__.py
+│       └── facade.py            # Facade (business logic, RBAC, validation)
+├── SQL_scripts/
+│   ├── create_tables.sql
+│   ├── insert_data.sql
+│   └── test_crud.sql
+├── instance/
+│   └── development.db           # SQLite DB (ignored in git)
+├── tests/
+│   └── models/
+│       ├── test_user.py
+│       ├── test_place.py
+│       ├── test_amenity.py
+│       └── test_review.py
+├── config.py
+├── requirements.txt
+└── run.py
+```
+
+## RBAC Matrix
+
+| Endpoint                  | Admin         | User          | Not Authenticated |
+|---------------------------|:-------------:|:-------------:|:-----------------:|
+| POST   /users             | ✅            | ❌            | ❌                |
+| GET    /users             | ✅            | ✅ (self only) | ❌                |
+| PUT    /users/{id}        | ✅ (any)      | ✅ (self only) | ❌                |
+| POST   /places            | ✅            | ✅            | ❌                |
+| PUT    /places/{id}       | ✅ (any)      | ✅ (owner)     | ❌                |
+| DELETE /places/{id}       | ✅ (any)      | ✅ (owner)     | ❌                |
+| POST   /amenities         | ✅            | ❌            | ❌                |
+| PUT    /amenities/{id}    | ✅            | ❌            | ❌                |
+| GET    /amenities         | ✅            | ✅            | ✅                |
+| POST   /reviews           | ✅            | ✅            | ❌                |
+| PUT    /reviews/{id}      | ✅ (any)      | ✅ (author)    | ❌                |
+| DELETE /reviews/{id}      | ✅ (any)      | ✅ (author)    | ❌                |
+
+- **Admin**: can do everything, including bypassing ownership checks.
+- **User**: can only manage their own resources (places, reviews).
+- **Not Authenticated**: can only access public GET endpoints.
 
 ## Database Schema (ER Diagram)
 
@@ -76,12 +133,12 @@ erDiagram
 
 ## API Endpoints
 
-- `POST /api/v1/users` : Création d’utilisateur (admin only)
-- `POST /api/v1/auth/login` : Authentification, obtention du JWT
-- `GET/POST/PUT/DELETE /api/v1/places` : CRUD sur les hébergements
-- `GET/POST/PUT/DELETE /api/v1/amenities` : CRUD sur les équipements (admin only pour POST/PUT)
-- `GET/POST/PUT/DELETE /api/v1/reviews` : CRUD sur les avis
-- `GET /api/v1/places/{id}/reviews` : Avis d’un hébergement
+- `POST /api/v1/users`: Create user (admin only)
+- `POST /api/v1/auth/login`: Authenticate, get JWT
+- `GET/POST/PUT/DELETE /api/v1/places`: CRUD for places
+- `GET/POST/PUT/DELETE /api/v1/amenities`: CRUD for amenities (admin only for POST/PUT)
+- `GET/POST/PUT/DELETE /api/v1/reviews`: CRUD for reviews
+- `GET /api/v1/places/{id}/reviews`: Get reviews for a place
 
 ## Usage
 
@@ -95,20 +152,20 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Initialisation de la base
+### Database Initialization
 
 ```bash
 sqlite3 instance/development.db < SQL_scripts/create_tables.sql
 sqlite3 instance/development.db < SQL_scripts/insert_data.sql
 ```
 
-### Lancement
+### Running the Server
 
 ```bash
 python run.py
 ```
 
-Swagger UI : http://127.0.0.1:5000/
+Swagger UI: http://127.0.0.1:5000/
 
 ### Tests
 
@@ -116,17 +173,45 @@ Swagger UI : http://127.0.0.1:5000/
 pytest
 ```
 
-## Points forts de la part3
+## Key Strengths of Part 3
 
-- **Sécurité** : JWT, RBAC, validation stricte
-- **Modularité** : architecture en couches, patterns professionnels
-- **SQL** : scripts reproductibles, cohérence ORM/SQL
-- **Extensibilité** : facile d’ajouter de nouveaux endpoints ou entités
-- **Documentation** : Swagger, README, diagramme Mermaid
+- **Security**: JWT, RBAC, strict validation
+- **Modularity**: Layered architecture, professional design patterns
+- **SQL**: Reproducible scripts, ORM/SQL consistency
+- **Extensibility**: Easy to add new endpoints or entities
+- **Documentation**: Swagger, README, Mermaid diagram
+
+## Technical Challenges & Solutions
+
+- **Circular imports**: Resolved by moving imports inside methods or constructors.
+- **Backref conflicts**: Fixed by using explicit foreign keys and removing ambiguous backrefs.
+- **RBAC enforcement**: JWT claims and endpoint protection for admin/user logic.
+- **Ownership logic**: Explicit checks in endpoints and service layer.
+- **Database consistency**: Strict sync between SQL schema and ORM models.
+- **Amenity management**: Custom `add_amenity` method and session management.
+- **Error handling**: Consistent error messages, HTTP codes, and logging.
+
+## Testing Strategy
+
+- **Unit tests**: All models and business logic are covered with pytest.
+- **Integration tests**: Endpoints are tested for all CRUD operations and RBAC scenarios.
+- **Manual tests with curl**:  
+  - Authentication:  
+    ```bash
+    curl -X POST http://localhost:5000/api/v1/auth/login -d '{"email":"admin@hbnb.io","password":"admin123"}' -H "Content-Type: application/json"
+    ```
+  - Create a user (admin only):  
+    ```bash
+    curl -X POST http://localhost:5000/api/v1/users -H "Authorization: Bearer <ADMIN_TOKEN>" -d '{"first_name":"Test","last_name":"User","email":"test@hbnb.io","password":"test123"}' -H "Content-Type: application/json"
+    ```
+  - Create a place (user):  
+    ```bash
+    curl -X POST http://localhost:5000/api/v1/places -H "Authorization: Bearer <USER_TOKEN>" -d '{"title":"Studio","description":"Nice","price":50,"latitude":48.8,"longitude":2.3}' -H "Content-Type: application/json"
+    ```
+  - Test forbidden actions (user trying to create another user, etc.)
+  - Test error cases (missing fields, invalid JWT, etc.)
 
 ## Authors
 
 - **Stéphane Paton**
 - **Guillaume Font**
-
----

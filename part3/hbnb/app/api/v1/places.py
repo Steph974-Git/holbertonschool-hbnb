@@ -219,10 +219,6 @@ class PlaceResource(Resource):
                 if not -180 <= longitude <= 180:
                     return {'error': 'Longitude must be between -180 and 180 degrees'}, 400
 
-            # Ne pas permettre la modification de owner_id via cette route
-            if 'owner_id' in place_data:
-                return {'error': 'Cannot change place ownership through this endpoint'}, 400
-
             # Mise à jour de l'hébergement après validation
             updated_place = facade.update_place(place_id, place_data)
             

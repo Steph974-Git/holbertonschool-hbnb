@@ -124,7 +124,9 @@ pytest
 - **Extensibilité** : facile d’ajouter de nouveaux endpoints ou entités
 - **Documentation** : Swagger, README, diagramme Mermaid
 
----
+## Authors
 
-**N’hésite pas à intégrer ce README et le diagramme dans ta doc !**  
-Tu peux adapter les titres, ajouter des exemples de requêtes, ou détailler les
+- **Stéphane Paton**
+- **Guillaume Font**
+
+---

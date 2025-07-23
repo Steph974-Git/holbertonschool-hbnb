@@ -21,12 +21,109 @@ header {
     padding: 1rem;
 }
 
+nav {
+    display: flex;
+    align-items: center;
+}
+
 nav a {
     color: #fff;
     text-decoration: none;
     margin-left: 1rem;
 }
 
+nav a:first-child {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+.logo {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 main {
     padding: 2rem;
+}
+
+.details-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #e22828;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+.details-button:hover {
+    background-color: #e22828;
+}
+
+/* Fixed parameters for place and review cards */
+.place-card,
+.review-card {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    text-align: center; /* centre le texte dans la card */
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#places-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Centrer le filtre Max Price */
+#filter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Centrer le texte du footer */
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: #333;
+    color: #fff;
+}
+
+/* Centrer la place */
+.place-details {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.place-info {
+    margin: 0 auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Aligner les reviews à gauche */
+section > .review-card {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    max-width: 400px;
+    text-align: left;
 }

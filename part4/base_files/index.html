@@ -9,7 +9,11 @@
 <body>
     <header>
         <nav>
-            <a href="login.html" id="login-link">Login</a>
+            <a href="index.html">
+                <img src="images/logo.png" alt="App Logo" class="logo">
+            </a>
+            <a href="index.html">Home</a>
+            <a href="login.html" id="login-link" class="login-button">Login</a>
         </nav>
     </header>
     <main>
@@ -20,9 +24,17 @@
             </select>
         </section>
         <section id="places-list">
-            <!-- List of places will be populated dynamically -->
+            <div class="place-card">
+        <h3>Chateau</h3>
+        <p>Price per night: $150</p>
+        <a href="place.html" class="details-button">View Details</a>
+    </div>
+    <!-- Ajoute d'autres cards selon tes données -->
         </section>
     </main>
     <script src="scripts.js"></script>
+<footer>
+    <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
+</footer>
 </body>
 </html>

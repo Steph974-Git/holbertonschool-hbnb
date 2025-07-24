@@ -1,24 +1,25 @@
-/* 
-  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks. 
-  You'll probably need to override some of theese styles.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600&display=swap');
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 body {
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: #0b0b0b;
+    color: #f8f8f8;
 }
 
 header {
-    background-color: #333;
-    color: #fff;
+    background-color: #111;
+    color: #f54242;
     padding: 1rem;
+    font-family: 'Creepster', cursive;
+    font-size: 2rem;
+    text-align: center;
+    text-shadow: 2px 2px 8px #900;
 }
 
 nav {
@@ -27,9 +28,15 @@ nav {
 }
 
 nav a {
-    color: #fff;
+    color: #f54242;
     text-decoration: none;
     margin-left: 1rem;
+    font-weight: bold;
+    transition: color 0.2s ease-in-out;
+}
+
+nav a:hover {
+    color: #91ff6f;
 }
 
 nav a:first-child {
@@ -46,61 +53,74 @@ main {
     padding: 2rem;
 }
 
+/* Bouton avec effet sang */
 .details-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #e22828;
+    background-color: #8b0000;
     color: #fff;
     border: none;
     border-radius: 5px;
     text-decoration: none;
     font-size: 16px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
     margin-top: 10px;
 }
 
 .details-button:hover {
-    background-color: #e22828;
+    background-color: #b30000;
 }
 
-/* Fixed parameters for place and review cards */
+/* Fixed parameters pour les cards */
 .place-card,
 .review-card {
     margin: 20px;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #500000;
     border-radius: 10px;
-    background: #fff;
-    text-align: center; /* centre le texte dans la card */
+    background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
+    text-align: center;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.place-card:hover,
+.review-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+/* Liste des places */
 #places-list {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Centrer le filtre Max Price */
+/* Centrage du filtre */
 #filter {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
-}
-
-/* Centrer le texte du footer */
-footer {
-    text-align: center;
-    padding: 1rem 0;
-    background: #333;
     color: #fff;
 }
 
-/* Centrer la place */
+/* Footer sanglant */
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: #111;
+    color: #f54242;
+    font-family: 'Creepster', cursive;
+    text-shadow: 1px 1px 5px #700;
+}
+
+/* Place centrée */
 .place-details {
     display: flex;
     justify-content: center;
@@ -110,20 +130,47 @@ footer {
 .place-info {
     margin: 0 auto;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #500000;
     border-radius: 10px;
-    background: #fff;
+    background: #1c1c1c;
     max-width: 400px;
     text-align: center;
+    color: #f8f8f8;
 }
 
-/* Aligner les reviews à gauche */
+/* Review à gauche */
 section > .review-card {
     margin: 20px 0;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #500000;
     border-radius: 10px;
-    background: #fff;
+    background: #1e1e1e;
     max-width: 400px;
     text-align: left;
+}
+
+/* Titres effet horreur */
+h1, h2, h3 {
+    font-family: 'Creepster', cursive;
+    color: #e63946;
+    text-shadow: 2px 2px 6px #400;
+}
+
+/* Images effet glauque */
+img {
+    max-width: 100%;
+    border-radius: 8px;
+    filter: grayscale(20%) brightness(90%) contrast(110%);
+}
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 1px); }
+  75% { transform: translate(1px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+
+.place-card:hover,
+.review-card:hover {
+  animation: shake 0.3s ease-in-out;
 }

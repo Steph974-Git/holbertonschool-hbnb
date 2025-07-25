@@ -46,7 +46,47 @@ function checkAuthentication() {
         fetchPlaces(token);
     }
 }
-function getCookie(name) {
-    // Function to get a cookie value by its name
-    // Your code here
+
+function getCookie(cookieName) {
+    // Découpe tous les cookies en un tableau
+    const cookies = document.cookie.split('; ');
+    // Parcourt chaque cookie
+    for (const cookie of cookies) {
+        // Sépare le nom et la valeur du cookie
+        const [name, value] = cookie.split('=');
+        // Si le nom correspond à celui recherché, retourne la valeur décodée
+        if (name === cookieName) {
+            return decodeURIComponent(value);
+        }
+    }
+    // Retourne null si le cookie n'est pas trouvé
+    return null;
+}
+async function fetchPlaces(token) {
+                const response = await fetch('http://127.0.0.1:5000/api/v1/auth/places', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        (token && { 'Authorization': `Bearer ${token}` }) // Ajoute le token si présent
+                    }
+        });
+
+        if (response.ok) {
+            const places = await response.json(); // Récupère les données des lieux
+            displayPlaces(places); // Affiche les lieux
+        } else {
+            document.getElementById('places-list').innerHTML = '<p>Failed to load places.</p>';
+        }
+            }
+function displayPlaces(places) {
+    const placesList = document.getElementById('places-list');
+    placesList.innerHTML = ''; // 1. Vide la liste
+
+    // 2. Parcourt chaque lieu
+    places.forEach(place => {
+        // 3. Crée la card
+        const card = document.createElement('div');
+        card.className = 'place-card';
+
+    }
 }

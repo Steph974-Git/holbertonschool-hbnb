@@ -76,7 +76,6 @@ class HBnBFacade:
             # Assigner le propriétaire
             place.owner_id = owner_id
 
-            # ✅ CORRECTION : Utiliser place.amenities au lieu de add_amenity
             if amenities_ids:
                 amenities_objects = []
                 for amenity_id in amenities_ids:
@@ -129,7 +128,6 @@ class HBnBFacade:
                 if hasattr(place, key):
                     setattr(place, key, value)
 
-            # ✅ CORRECTION : Gérer les amenities correctement
             if amenity_ids:
                 amenities_objects = []
                 for amenity_id in amenity_ids:

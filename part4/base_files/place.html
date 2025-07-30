@@ -17,36 +17,30 @@
         </nav>
     </header>
     <main>
-        <section id="place-details" class="place-details">
-            <div class="place-info">
-                <h2>Manoir</h2>
-                <p><strong>Host:</strong> AdminHbnb</p>
-                <p><strong>Price per night:</strong> $170</p>
-                <p><strong>Description:</strong>Glauque</p>
-                <p><strong>Amenities:</strong>Squelette</p>
-            </div>
-</section>
-        </section>
-        <section>
+        <!-- Section dynamique pour les détails du lieu (remplie par JS) -->
+        <section id="place-details" class="place-details"></section>
+
+        <!-- Section dynamique pour les reviews (remplie par JS) -->
+        <section id="reviews-section">
             <h3>Reviews</h3>
-            <div class="review-card">
-                <p><strong>User:</strong> Alice</p>
-                <p>"Super séjour, je recommande !"</p>
-                <p><strong>Rating:</strong> 5/5</p>
-            </div>
-            <div class="review-card">
-                <p><strong>User:</strong> Bob</p>
-                <p>"Très bel endroit, hôte sympathique."</p>
-                <p><strong>Rating:</strong> 4/5</p>
-            </div>
-            <!-- Ajoute d'autres review-card selon tes données -->
+            <!-- Les reviews seront ajoutées ici par JS -->
         </section>
-        <section id="add-review" class="add-review">
-            <h2>Add a Review</h2>
-            <form id="review-form" class="form">
-                <label for="review-text">Review:</label>
-                <textarea id="review-text" name="review-text" required></textarea>
-                <button type="submit">Submit</button>
+
+        <!-- Section pour le formulaire d’avis, affichée seulement si connecté -->
+        <section id="add-review" style="display:none;">
+            <h2>Ajouter un avis</h2>
+            <form id="review-form" class="add-review form">
+                <label for="comment">Commentaire :</label>
+                <textarea id="comment" name="comment" required></textarea>
+                <label for="rating">Note :</label>
+                <select id="rating" name="rating" required>
+                    <option value="5">5/5</option>
+                    <option value="4">4/5</option>
+                    <option value="3">3/5</option>
+                    <option value="2">2/5</option>
+                    <option value="1">1/5</option>
+                </select>
+                <button type="submit">Envoyer</button>
             </form>
         </section>
     </main>

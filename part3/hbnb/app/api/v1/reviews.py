@@ -115,7 +115,9 @@ class ReviewList(Resource):
                     'user_id': review.user.id,
                     'place_id': review.place.id,
                     'created_at': review.created_at.isoformat(),
-                    'updated_at': review.updated_at.isoformat()
+                    'updated_at': review.updated_at.isoformat(),
+                    'first_name': review.user.first_name,  # <-- ajout Part4
+                    'last_name': review.user.last_name     # <-- ajout Part4
                 }
                 result.append(review_data)
 
@@ -146,7 +148,9 @@ class ReviewResource(Resource):
                 'user_id': review.user.id,
                 'place_id': review.place.id,
                 'created_at': review.created_at.isoformat(),
-                'updated_at': review.updated_at.isoformat()
+                'updated_at': review.updated_at.isoformat(),
+                'first_name': review.user.first_name,  # <-- ajout Part4
+                'last_name': review.user.last_name     # <-- ajout Part4
             }
             return review_data, 200
 
@@ -206,7 +210,9 @@ class ReviewResource(Resource):
                 'user_id': updated_review.user.id,
                 'place_id': updated_review.place.id,
                 'created_at': updated_review.created_at.isoformat(),
-                'updated_at': updated_review.updated_at.isoformat()
+                'updated_at': updated_review.updated_at.isoformat(),
+                'first_name': updated_review.user.first_name,  # <-- ajout Part4
+                'last_name': updated_review.user.last_name     # <-- ajout Part4
             }, 200
 
         except Exception as e:
@@ -277,7 +283,9 @@ class PlaceReviewList(Resource):
                     'user_id': review.user.id,
                     'place_id': review.place.id,
                     'created_at': review.created_at.isoformat(),
-                    'updated_at': review.updated_at.isoformat()
+                    'updated_at': review.updated_at.isoformat(),
+                    'first_name': review.user.first_name,  # <-- ajout Part4
+                    'last_name': review.user.last_name     # <-- ajout Part4
                 }
                 result.append(review_data)
 

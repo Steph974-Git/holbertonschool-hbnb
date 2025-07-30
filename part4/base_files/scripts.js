@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 function checkAuthentication() {
     const token = getCookie('token');
     const loginLink = document.getElementById('login-link');
+    // Redirige uniquement si on est sur une page protégée
+    if (!token && window.location.pathname.endsWith('place.html')) {
+        window.location.href = 'index.html';
+    }
     if (!loginLink) return;
     if (!token) {
         loginLink.style.display = 'block';

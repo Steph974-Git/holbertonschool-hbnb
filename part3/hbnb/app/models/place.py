@@ -22,7 +22,8 @@ class Place(BaseModel):
                            backref=db.backref('places', lazy=True))
     owner_id = db.Column(db.String(36), ForeignKey('users.id'), nullable=False)
     reviews = relationship('Review', backref='place', lazy=True)
-
+    images = Column(String(), nullable=True)
+    
     def __init__(self, title, description, price, latitude, longitude):
         super().__init__()
 

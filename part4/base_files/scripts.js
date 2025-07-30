@@ -138,7 +138,7 @@ function displayPlaces(places) {
         const card = document.createElement('div');
         card.className = 'place-card';
         card.innerHTML = `
-            <img src="${place.image_url || 'images/default.jpg'}" alt="${place.title}" class="place-img">
+            <img src="${place.images || 'images/default.jpg'}" alt="${place.title}" class="place-img">
             <h3>${place.title}</h3>
             <p>Price per night: $${place.price}</p>
             <p>${place.description || ''}</p>

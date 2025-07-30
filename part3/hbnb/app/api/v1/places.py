@@ -122,7 +122,8 @@ class PlaceList(Resource):
                                    "latitude": place.latitude,
                                    "longitude": place.longitude,
                                    "owner_id": place.owner.id,
-                                   "amenities": amenities_list})
+                                   "amenities": amenities_list,
+                                   "images": place.images})
                 else:
                     result.append({"id": place.id,
                                    "title": place.title,
@@ -130,7 +131,8 @@ class PlaceList(Resource):
                                    "price": place.price,
                                    "latitude": place.latitude,
                                    "longitude": place.longitude,
-                                   "owner_id": place.owner.id})
+                                   "owner_id": place.owner.id,
+                                   "images": place.images})
             return result, 200
         except Exception as e:
             print(f"Error retrieving places: {str(e)}")
@@ -164,12 +166,12 @@ class PlaceResource(Resource):
                 return {"id": place.id, "title": place.title,
                         "description": place.description, "price": place.price,
                         "latitude": place.latitude, "longitude": place.longitude,
-                        "owner": owner_details, "amenities": amenities_list}, 200
+                        "owner": owner_details, "amenities": amenities_list, "images": place.images}, 200
 
             return {"id": place.id, "title": place.title,
                     "description": place.description, "price": place.price,
                     "latitude": place.latitude, "longitude": place.longitude,
-                    "owner": owner_details}, 200
+                    "owner": owner_details, "images": place.images}, 200
         except Exception as e:
             print(f"Error retrieving place: {str(e)}")
             return {'error': 'An unexpected error occurred'}, 500
@@ -230,7 +232,8 @@ class PlaceResource(Resource):
                 "price": updated_place.price,
                 "latitude": updated_place.latitude,
                 "longitude": updated_place.longitude,
-                "owner_id": updated_place.owner.id
+                "owner_id": updated_place.owner.id,
+                "images": place.images
             }
 
             # Ajouter les amenities si présentes

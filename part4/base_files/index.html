@@ -20,11 +20,27 @@
         <section id="filter">
             <label for="price-filter">Max Price:</label>
             <select id="price-filter">
-                <!-- Options will be populated dynamically -->
+                <!-- options remplies dynamiquement -->
             </select>
         </section>
 <section id="places-list">
-    <!-- Les lieux seront ajoutés ici dynamiquement par JS -->
+    <div class="place-card">
+         <img src="images/Chateau.jpg" alt="Chateau" class="place-img">
+        <h3>Chateau</h3>
+        <p>Price per night: $199</p>
+        <p>horrible</p>
+        <p>Location: Lat. 60, Long. 10</p>
+        <a href="place.html?id=1" class="details-button">View Details</a>
+    </div>
+    <div class="place-card">
+        <img src="images/Manoir Flippant.jpg" alt="Manoir" class="place-img">
+        <h3>Manoir</h3>
+        <p>Price per night: $170</p>
+        <p>Glauque</p>
+        <p>Location: Lat. 50, Long. 50</p>
+        <a href="place.html?id=2" class="details-button">View Details</a>
+    </div>
+    <!-- Ajoute d'autres cards si besoin -->
 </section>
     </main>
     <script src="scripts.js"></script>

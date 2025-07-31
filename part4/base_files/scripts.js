@@ -61,6 +61,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             await fetchPlaceDetails(token, placeId);
         }
     }
+
+    // ----- Gestion du formulaire d'ajout d'avis (page place.html uniquement) -----
+    const reviewForm = document.getElementById('review-form');
+    const placeId = getPlaceIdFromURL();
+    const token = getCookie('token');
+
+    if (reviewForm && placeId && token) {
+        reviewForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Empêche le rechargement et l'ajout à l'URL
+
+            const comment = document.getElementById('comment').value;
+            const rating = document.getElementById('rating').value;
+
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        text: comment,
+                        rating: rating,
+                        place_id: placeId
+                    })
+                });
+                if (response.ok) {
+                    alert('Avis ajouté avec succès !');
+                    reviewForm.reset();
+                    // Optionnel : recharger les reviews
+                    await fetchPlaceDetails(token, placeId);
+                } else {
+                    alert('Erreur lors de l\'ajout de l\'avis.');
+                }
+            } catch (error) {
+                alert('Erreur réseau.');
+            }
+        });
+    }
 });
 
 // ----- Vérifie si l’utilisateur est connecté, gère l’affichage du lien login (sur toutes les pages où il existe) -----

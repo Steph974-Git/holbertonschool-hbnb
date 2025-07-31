@@ -97,9 +97,13 @@ main {
 /* Liste des places */
 #places-list {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;      /* Passe à l'horizontale */
+    flex-wrap: wrap;          /* Permet le retour à la ligne si besoin */
+    justify-content: center;  /* Centre les cards si l'écran est large */
+    gap: 30px;                /* Optionnel : espace entre les cards */
+    align-items: stretch;     /* Aligne en hauteur si besoin */
 }
+
 
 /* Centrage du filtre */
 #filter {

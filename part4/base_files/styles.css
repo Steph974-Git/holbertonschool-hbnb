@@ -99,11 +99,17 @@ main {
     border-radius: 10px;
     background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
     text-align: center;
-    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.place-card {
+    max-width: 350px;      /* Limite la largeur des cards sur index */
+    width: 100%;
+    margin: 20px;
+    padding: 10px;
 }
 
 .place-card:hover,
@@ -112,13 +118,25 @@ main {
     box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
 }
 
+.reviews-title {
+    margin-top: 36px;
+    margin-bottom: 10px;
+    font-size: 2rem;
+    color: #e63946;
+    text-align: left;
+    width: 90%;
+    max-width: 900px;
+    margin-left: 0;
+    margin-right: 0;
+    letter-spacing: 1px;
+    font-family: 'Creepster', cursive;
+}
+
 #reviews-list {
     display: flex;
     flex-direction: column;
-    align-items: center;   /* Centre toutes les reviews horizontalement */
-    margin-top: 30px;
-    margin-bottom: 30px;
-    width: 100%;
+    gap: 30px;
+    width: 100%;     /* Prend toute la largeur du conteneur */
 }
 
 
@@ -165,7 +183,7 @@ footer {
     border: 1px solid #500000;
     border-radius: 10px;
     background: #1c1c1c;
-    max-width: 400px;
+    max-width: 700px;
     text-align: center;
     color: #f8f8f8;
 }
@@ -206,7 +224,6 @@ img {
 
 /* Centre le formulaire et limite sa largeur */
 #add-review form {
-    max-width: 400px;
     width: 100%;
     margin: 0 auto;
     background: #181818;
@@ -243,3 +260,20 @@ img {
 #add-review button:hover {
     background: #b30000;
 }
+
+.review-card {
+    padding: 30px 28px;
+    border: 1.5px solid #9a2323;
+    border-radius: 12px;
+    background: linear-gradient(100deg, #19181b 80%, #242325 100%);
+    box-shadow: 0 4px 18px #2e02023b;
+    color: #fff;
+    font-size: 1.15rem;
+    text-align: left;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.review-card:last-child { margin-bottom: 0; }

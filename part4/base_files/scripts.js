@@ -258,14 +258,22 @@ async function fetchPlaceDetails(token, placeId) {
 
 // ----- Génère dynamiquement le détail d'un lieu (et ses reviews) -----
 function displayPlaceDetails(place) {
+    // Affiche les infos principales
     const placeDetails = document.getElementById('place-details');
     placeDetails.innerHTML = '';
 
-    // Bloc principal d'infos sur le lieu
+    // Ajout de l'image du lieu
+    let imageTag = '';
+    if (place.images) {
+        imageTag = `<img src="${place.images}" alt="${place.title || place.name}" class="place-img">`;
+    } else {
+        imageTag = `<img src="images/default.jpg" alt="No image" class="place-img">`;
+    }
+
     const infoDiv = document.createElement('div');
     infoDiv.className = 'place-info';
-
     infoDiv.innerHTML = `
+        ${imageTag}
         <h2>${place.title || place.name || 'Sans titre'}</h2>
         <p><strong>Host:</strong> ${place.owner ? (place.owner.first_name + ' ' + place.owner.last_name) : 'N/A'}</p>
         <p><strong>Price per night:</strong> $${place.price}</p>
@@ -274,26 +282,30 @@ function displayPlaceDetails(place) {
     `;
     placeDetails.appendChild(infoDiv);
 
-    // Ajout des reviews s'il y en a
-    if (place.reviews && place.reviews.length > 0) {
-        const reviewsList = document.createElement('div');
+    // Affiche les reviews sous la place
+    let reviewsList = document.getElementById('reviews-list');
+    if (!reviewsList) {
+        reviewsList = document.createElement('div');
         reviewsList.id = 'reviews-list';
+        // Ajoute-le juste après place-details
+        placeDetails.parentNode.insertBefore(reviewsList, placeDetails.nextSibling);
+    }
+    reviewsList.innerHTML = ''; // On vide d'abord
+
+    if (place.reviews && place.reviews.length > 0) {
         place.reviews.forEach(review => {
-            const reviewCard = document.createElement('article');
-            reviewCard.className = 'review-card';
-            reviewCard.innerHTML = `
-                <p>"${review.text || review.comment || ''}"</p>
-                <span>
-                    par ${review.first_name || ''} ${review.last_name || review.user_name || 'Anonyme'}
-                    - Note : ${review.rating || 'N/A'}/5
-                </span>
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = 'review-card';
+            reviewDiv.innerHTML = `
+                <p><strong>User:</strong> ${review.first_name ? review.first_name + ' ' + review.last_name : (review.user_name || 'Anonyme')}</p>
+                <p>"${review.text || ''}"</p>
+                <p><strong>Rating:</strong> ${review.rating || 'N/A'}/5</p>
             `;
-            reviewsList.appendChild(reviewCard);
+            reviewsList.appendChild(reviewDiv);
         });
-        placeDetails.appendChild(reviewsList);
     } else {
         const noReview = document.createElement('p');
         noReview.textContent = 'No reviews yet.';
-        placeDetails.appendChild(noReview);
+        reviewsList.appendChild(noReview);
     }
 }

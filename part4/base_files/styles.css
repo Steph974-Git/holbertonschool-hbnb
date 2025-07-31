@@ -1,5 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600&display=swap');
 
+html, body {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -94,6 +112,16 @@ main {
     box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
 }
 
+#reviews-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* Centre toutes les reviews horizontalement */
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+
 /* Liste des places */
 #places-list {
     display: flex;
@@ -142,17 +170,6 @@ footer {
     color: #f8f8f8;
 }
 
-/* Review à gauche */
-section > .review-card {
-    margin: 20px 0;
-    padding: 10px;
-    border: 1px solid #500000;
-    border-radius: 10px;
-    background: #1e1e1e;
-    max-width: 400px;
-    text-align: left;
-}
-
 /* Titres effet horreur */
 h1, h2, h3 {
     font-family: 'Creepster', cursive;
@@ -177,4 +194,52 @@ img {
 .place-card:hover,
 .review-card:hover {
   animation: shake 0.3s ease-in-out;
+}
+
+/* Centre la section d'ajout d'avis */
+#add-review {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+/* Centre le formulaire et limite sa largeur */
+#add-review form {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    background: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(255,0,0,0.2);
+}
+
+/* Pour rendre le textarea et le select propres */
+#add-review textarea,
+#add-review select {
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #500000;
+    padding: 8px;
+    background: #222;
+    color: #fff;
+    resize: vertical;
+}
+
+#add-review button {
+    background-color: #8b0000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+#add-review button:hover {
+    background: #b30000;
 }

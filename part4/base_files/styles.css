@@ -1,23 +1,29 @@
+/* Import des polices d'horreur et de base */
 @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600&display=swap');
 
+/* --- Structure générale --- */
 html, body {
     height: 100%;
 }
 
+/* Corps de la page en flex pour footer collé en bas */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
+/* Main prend toute la hauteur restante */
 main {
     flex: 1 0 auto;
 }
 
+/* Footer ne rétrécit pas */
 footer {
     flex-shrink: 0;
 }
 
+/* Reset et police par défaut */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -25,11 +31,13 @@ footer {
     font-family: 'Montserrat', sans-serif;
 }
 
+/* Couleurs de fond et texte globales */
 body {
     background-color: #0b0b0b;
     color: #f8f8f8;
 }
 
+/* --- Header et navigation --- */
 header {
     background-color: #111;
     color: #f54242;
@@ -40,11 +48,13 @@ header {
     text-shadow: 2px 2px 8px #900;
 }
 
+/* Barre de navigation horizontale */
 nav {
     display: flex;
     align-items: center;
 }
 
+/* Liens de navigation */
 nav a {
     color: #f54242;
     text-decoration: none;
@@ -53,25 +63,29 @@ nav a {
     transition: color 0.2s ease-in-out;
 }
 
+/* Effet survol sur les liens */
 nav a:hover {
     color: #91ff6f;
 }
 
+/* Décale le logo à gauche */
 nav a:first-child {
     margin-left: 0;
     margin-right: auto;
 }
 
+/* Logo centré verticalement */
 .logo {
     display: inline-block;
     vertical-align: middle;
 }
 
+/* Padding général du contenu principal */
 main {
     padding: 2rem;
 }
 
-/* Bouton avec effet sang */
+/* --- Bouton "View Details" avec effet sang --- */
 .details-button {
     display: inline-block;
     padding: 10px 20px;
@@ -85,12 +99,11 @@ main {
     transition: background 0.2s ease;
     margin-top: 10px;
 }
-
 .details-button:hover {
     background-color: #b30000;
 }
 
-/* Fixed parameters pour les cards */
+/* --- Cartes de lieux et d'avis --- */
 .place-card,
 .review-card {
     margin: 20px;
@@ -105,19 +118,23 @@ main {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Limite la largeur des cards sur index */
 .place-card {
-    max-width: 350px;      /* Limite la largeur des cards sur index */
+    max-width: 350px;
     width: 100%;
     margin: 20px;
     padding: 10px;
 }
 
+/* Effet "secousse" au survol */
 .place-card:hover,
 .review-card:hover {
     transform: scale(1.03);
     box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    animation: shake 0.3s ease-in-out;
 }
 
+/* --- Titre "Reviews" stylisé et aligné à gauche --- */
 .reviews-title {
     margin-top: 36px;
     margin-bottom: 10px;
@@ -132,26 +149,25 @@ main {
     font-family: 'Creepster', cursive;
 }
 
+/* Liste des reviews en colonne */
 #reviews-list {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    width: 100%;     /* Prend toute la largeur du conteneur */
+    width: 100%;
 }
 
-
-/* Liste des places */
+/* --- Liste des places sur index (flex wrap) --- */
 #places-list {
     display: flex;
-    flex-direction: row;      /* Passe à l'horizontale */
-    flex-wrap: wrap;          /* Permet le retour à la ligne si besoin */
-    justify-content: center;  /* Centre les cards si l'écran est large */
-    gap: 30px;                /* Optionnel : espace entre les cards */
-    align-items: stretch;     /* Aligne en hauteur si besoin */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    align-items: stretch;
 }
 
-
-/* Centrage du filtre */
+/* Centrage du filtre de prix */
 #filter {
     display: flex;
     justify-content: center;
@@ -160,7 +176,7 @@ main {
     color: #fff;
 }
 
-/* Footer sanglant */
+/* --- Footer sanglant --- */
 footer {
     text-align: center;
     padding: 1rem 0;
@@ -170,13 +186,14 @@ footer {
     text-shadow: 1px 1px 5px #700;
 }
 
-/* Place centrée */
+/* --- Détail d'un lieu centré --- */
 .place-details {
     display: flex;
     justify-content: center;
     margin-bottom: 30px;
 }
 
+/* Infos principales d'un lieu */
 .place-info {
     margin: 0 auto;
     padding: 10px;
@@ -188,19 +205,21 @@ footer {
     color: #f8f8f8;
 }
 
-/* Titres effet horreur */
+/* Titres avec effet horreur */
 h1, h2, h3 {
     font-family: 'Creepster', cursive;
     color: #e63946;
     text-shadow: 2px 2px 6px #400;
 }
 
-/* Images effet glauque */
+/* Images avec effet glauque */
 img {
     max-width: 100%;
     border-radius: 8px;
     filter: grayscale(20%) brightness(90%) contrast(110%);
 }
+
+/* Animation de secousse pour les cards */
 @keyframes shake {
   0% { transform: translate(0, 0); }
   25% { transform: translate(1px, -1px); }
@@ -209,12 +228,7 @@ img {
   100% { transform: translate(0, 0); }
 }
 
-.place-card:hover,
-.review-card:hover {
-  animation: shake 0.3s ease-in-out;
-}
-
-/* Centre la section d'ajout d'avis */
+/* --- Section d'ajout d'avis centrée --- */
 #add-review {
     display: flex;
     flex-direction: column;
@@ -222,7 +236,7 @@ img {
     margin-bottom: 40px;
 }
 
-/* Centre le formulaire et limite sa largeur */
+/* Formulaire d'ajout d'avis stylisé */
 #add-review form {
     width: 100%;
     margin: 0 auto;
@@ -232,7 +246,7 @@ img {
     box-shadow: 0 0 10px rgba(255,0,0,0.2);
 }
 
-/* Pour rendre le textarea et le select propres */
+/* Textarea et select propres dans le formulaire d'avis */
 #add-review textarea,
 #add-review select {
     width: 100%;
@@ -245,6 +259,7 @@ img {
     resize: vertical;
 }
 
+/* Bouton du formulaire d'avis */
 #add-review button {
     background-color: #8b0000;
     color: #fff;
@@ -256,11 +271,11 @@ img {
     transition: background 0.2s;
     margin-top: 10px;
 }
-
 #add-review button:hover {
     background: #b30000;
 }
 
+/* --- Carte d'avis stylisée --- */
 .review-card {
     padding: 30px 28px;
     border: 1.5px solid #9a2323;
@@ -278,6 +293,7 @@ img {
 }
 .review-card:last-child { margin-bottom: 0; }
 
+/* --- Effet screamer bienvenue --- */
 #screamer-welcome {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -296,11 +312,9 @@ img {
     transition: opacity 0.6s;
     will-change: opacity, transform, filter;
 }
-
 #screamer-welcome.show {
     animation: screamerFadeClean 3.3s cubic-bezier(.36,1,.63,1) forwards;
 }
-
 @keyframes screamerFadeClean {
     0%   { opacity: 0;   transform: scale(0.8); filter: blur(12px);}
     10%  { opacity: 1;   transform: scale(1.02); filter: blur(2px);}
@@ -310,6 +324,7 @@ img {
     100% { opacity: 0;   transform: scale(1.38); filter: blur(10px);}
 }
 
+/* --- Fond glauque et canvas d'ombres mouvantes --- */
 #magic-bg-container {
     position: fixed;
     inset: 0;

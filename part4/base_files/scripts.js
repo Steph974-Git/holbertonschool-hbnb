@@ -16,11 +16,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
+            // Joue le son de screamer si présent
             if (screamAudio) {
                 screamAudio.currentTime = 0;
                 screamAudio.play();
             }
 
+            // Affiche l'effet "Bienvenue !" fantomatique si présent
             if (screamerWelcome) {
                 screamerWelcome.style.display = 'flex';
                 screamerWelcome.classList.add('show');
@@ -38,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const password = document.getElementById('password').value;
                 await loginUser(email, password);
 
+                // Fonction de login utilisateur
                 async function loginUser(email, password) {
                     const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
                         method: 'POST',
@@ -98,6 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rating = document.getElementById('rating').value;
 
             try {
+                // Envoie la review à l'API
                 const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/`, {
                     method: 'POST',
                     headers: {
@@ -113,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     alert('Avis ajouté avec succès !');
                     reviewForm.reset();
-                    // Optionnel : recharger les reviews
+                    // Recharge les reviews après ajout
                     await fetchPlaceDetails(token, placeId);
                 } else {
                     alert('Erreur lors de l\'ajout de l\'avis.');
@@ -185,6 +189,7 @@ function displayPlaces(places) {
     if (!placesList) return;
     placesList.innerHTML = '';
 
+    // Pour chaque lieu, crée une card et l'ajoute à la liste
     places.forEach(place => {
         const card = document.createElement('div');
         card.className = 'place-card';
@@ -225,6 +230,7 @@ function filterPlacesByPrice() {
         }
         displayPlaces(filtered);
     } else {
+        // Fallback si la liste globale n'est pas dispo
         document.querySelectorAll('.place-card').forEach(card => {
             const priceP = Array.from(card.querySelectorAll('p')).find(p => p.textContent.includes('Price per night'));
             if (!priceP) return;
@@ -284,7 +290,7 @@ async function fetchPlaceDetails(token, placeId) {
 
 // ----- Génère dynamiquement le détail d'un lieu (et ses reviews) -----
 function displayPlaceDetails(place) {
-    // Affiche les infos principales
+    // Affiche les infos principales du lieu
     const placeDetails = document.getElementById('place-details');
     placeDetails.innerHTML = '';
 
@@ -318,6 +324,7 @@ function displayPlaceDetails(place) {
     }
     reviewsList.innerHTML = ''; // On vide d'abord
 
+    // Affiche chaque review ou un message s'il n'y en a pas
     if (place.reviews && place.reviews.length > 0) {
         place.reviews.forEach(review => {
             const reviewDiv = document.createElement('div');
@@ -336,9 +343,11 @@ function displayPlaceDetails(place) {
     }
 }
 
+// ----- Gestion de l'animation du canvas d'ombres mouvantes -----
 const canvas = document.getElementById("shadow-bg");
 const ctx = canvas.getContext("2d");
 
+// Redimensionne le canvas à la taille de la fenêtre
 function resizeShadowCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -346,11 +355,12 @@ function resizeShadowCanvas() {
 resizeShadowCanvas();
 window.addEventListener('resize', resizeShadowCanvas);
 
+// Génère un nombre aléatoire entre min et max
 function random(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// Classe tache/silhouette mouvante
+// Classe représentant une tache/silhouette mouvante
 class MovingShadow {
   constructor() {
     this.radius = random(120, 350);
@@ -374,6 +384,7 @@ class MovingShadow {
     return this.age > this.lifetime;
   }
 
+  // Met à jour la position de la tache
   update(dt) {
     const t = this.age + this.offset;
     this.x += Math.sin(t * this.speed) * this.ampX * 0.0005 * dt;
@@ -382,6 +393,7 @@ class MovingShadow {
     this.x += (this.ampX > 110 ? 0.03 : -0.05) * dt * 0.018;
   }
 
+  // Dessine la tache sur le canvas
   draw(ctx) {
     ctx.save();
     ctx.globalAlpha = this.alpha * (1 - (this.age / this.lifetime) * 0.7); // s'estompe doucement
@@ -403,6 +415,7 @@ class MovingShadow {
 }
 
 let shadows = [];
+// Ajoute une nouvelle tache si besoin
 function addShadow() {
   if (shadows.length < 7 && Math.random() > 0.4) {
     shadows.push(new MovingShadow());
@@ -410,13 +423,14 @@ function addShadow() {
 }
 
 let lastTime = 0;
+// Boucle d'animation principale pour les ombres mouvantes
 function animateShadow(time) {
   let dt = (time - lastTime) || 16;
   lastTime = time;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Ombre mouvante principale
+  // Met à jour et dessine chaque tache
   shadows.forEach(s => s.update(dt));
   shadows.forEach(s => s.draw(ctx));
   shadows = shadows.filter(s => !s.dead);

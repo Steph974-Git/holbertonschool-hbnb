@@ -277,3 +277,51 @@ img {
     margin-right: 0 !important;
 }
 .review-card:last-child { margin-bottom: 0; }
+
+#screamer-welcome {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100vh;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Creepster', cursive;
+    font-size: 7vw;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 0 30px #f54242, 0 0 150px #fff, 0 0 30px #900;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(10,0,0,0.21);
+    transition: opacity 0.6s;
+    will-change: opacity, transform, filter;
+}
+
+#screamer-welcome.show {
+    animation: screamerFadeClean 3.3s cubic-bezier(.36,1,.63,1) forwards;
+}
+
+@keyframes screamerFadeClean {
+    0%   { opacity: 0;   transform: scale(0.8); filter: blur(12px);}
+    10%  { opacity: 1;   transform: scale(1.02); filter: blur(2px);}
+    30%  { opacity: 1;   transform: scale(1.1);  filter: blur(0);}
+    80%  { opacity: 1;   transform: scale(1.18); filter: blur(0);}
+    92%  { opacity: 0.4; transform: scale(1.31);}
+    100% { opacity: 0;   transform: scale(1.38); filter: blur(10px);}
+}
+
+#magic-bg-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(ellipse at 50% 110%, #2b401a38 0px, #1a1c1e00 400px);
+    /* Ajoute une ambiance glauque verdâtre par dessous */
+}
+#shadow-bg {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}

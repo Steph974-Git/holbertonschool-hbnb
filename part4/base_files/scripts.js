@@ -9,27 +9,50 @@ console.log("JS chargé !");
 document.addEventListener('DOMContentLoaded', async () => {
     // ----- Gestion du formulaire de login (uniquement sur la page login) -----
     const loginForm = document.getElementById('login-form');
+    const screamerWelcome = document.getElementById('screamer-welcome');
+    const screamAudio = document.getElementById('scream-audio');
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            await loginUser(email, password);
 
-            async function loginUser(email, password) {
-                const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    document.cookie = `token=${data.access_token}; path=/`;
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Login failed: ' + response.statusText);
-                }
+            if (screamAudio) {
+                screamAudio.currentTime = 0;
+                screamAudio.play();
             }
+
+            if (screamerWelcome) {
+                screamerWelcome.style.display = 'flex';
+                screamerWelcome.classList.add('show');
+
+                // Supprime la classe show et masque après l'animation CSS
+                setTimeout(() => {
+                    screamerWelcome.classList.remove('show');
+                    screamerWelcome.style.display = 'none';
+                }, 3500); // Même durée que l'animation CSS !
+            }
+
+            // Démarre le login après l'animation + petit délai
+            setTimeout(async () => {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                await loginUser(email, password);
+
+                async function loginUser(email, password) {
+                    const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.cookie = `token=${data.access_token}; path=/`;
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Login failed: ' + response.statusText);
+                    }
+                }
+            }, 3500); // Idem ici, égal à la durée de l'animation
         });
     }
 
@@ -100,6 +123,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+    // Suppression de la génération des .magic-bubble pour n'avoir que les bulles canvas
+    // (rien à faire ici)
 });
 
 // ----- Vérifie si l’utilisateur est connecté, gère l’affichage du lien login (sur toutes les pages où il existe) -----
@@ -309,3 +335,95 @@ function displayPlaceDetails(place) {
         reviewsList.appendChild(noReview);
     }
 }
+
+const canvas = document.getElementById("shadow-bg");
+const ctx = canvas.getContext("2d");
+
+function resizeShadowCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeShadowCanvas();
+window.addEventListener('resize', resizeShadowCanvas);
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+// Classe tache/silhouette mouvante
+class MovingShadow {
+  constructor() {
+    this.radius = random(120, 350);
+    this.x = random(-100, canvas.width + 100);
+    this.y = random(canvas.height * 0.2, canvas.height * 0.93);
+    this.ampX = random(60, 210);
+    this.ampY = random(20, 75);
+    this.speed = random(0.09, 0.25);
+    this.offset = random(0, Math.PI * 2);
+    this.alpha = random(0.08, 0.19);
+    this.blur = random(60, 130);
+    this.lifetime = random(18, 32); // secondes avant de “mourir”
+    this.birth = performance.now() / 1000;
+    this.verticalDrift = random(-0.08, 0.08);
+  }
+
+  get age() {
+    return (performance.now() / 1000) - this.birth;
+  }
+  get dead() {
+    return this.age > this.lifetime;
+  }
+
+  update(dt) {
+    const t = this.age + this.offset;
+    this.x += Math.sin(t * this.speed) * this.ampX * 0.0005 * dt;
+    this.y += Math.sin(t * this.speed * 0.6) * this.ampY * 0.0009 * dt + this.verticalDrift * dt * 0.018;
+    // Déplacement lent latéral : le “brouillard” glisse
+    this.x += (this.ampX > 110 ? 0.03 : -0.05) * dt * 0.018;
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha * (1 - (this.age / this.lifetime) * 0.7); // s'estompe doucement
+    ctx.filter = `blur(${this.blur}px)`;
+    ctx.beginPath();
+    ctx.ellipse(
+      this.x,
+      this.y,
+      this.radius * (1 + Math.sin(this.age * 0.23 + this.offset) * 0.12),
+      this.radius * (0.85 + Math.cos(this.age * 0.19 - this.offset) * 0.15),
+      Math.sin(this.age * 0.18 + this.offset) * 0.8,
+      0, Math.PI * 2
+    );
+    ctx.fillStyle = "#000";
+    ctx.fill();
+    ctx.restore();
+    ctx.filter = "none";
+  }
+}
+
+let shadows = [];
+function addShadow() {
+  if (shadows.length < 7 && Math.random() > 0.4) {
+    shadows.push(new MovingShadow());
+  }
+}
+
+let lastTime = 0;
+function animateShadow(time) {
+  let dt = (time - lastTime) || 16;
+  lastTime = time;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Ombre mouvante principale
+  shadows.forEach(s => s.update(dt));
+  shadows.forEach(s => s.draw(ctx));
+  shadows = shadows.filter(s => !s.dead);
+
+  // Ajoute des nouvelles taches
+  addShadow();
+
+  requestAnimationFrame(animateShadow);
+}
+animateShadow(0);

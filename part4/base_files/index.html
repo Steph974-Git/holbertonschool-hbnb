@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Métadonnées de base pour le navigateur et le responsive -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Places</title>
+    <!-- Feuille de style principale pour le thème et l'apparence -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="magic-bg-container">
-        <canvas id="shadow-bg"></canvas>
-    </div>
+    <!-- ==================== HEADER ==================== -->
     <header>
         <nav>
+            <!-- Logo de l'application, ramène toujours à l'accueil -->
             <a href="index.html">
                 <img src="images/logo.png" alt="App Logo" class="logo">
             </a>
+            <!-- Lien Accueil (pour revenir à la page principale) -->
             <a href="index.html">Home</a>
+            <!-- Bouton Login (affiché/masqué selon la connexion JS) -->
             <a href="login.html" id="login-link" class="login-button">Login</a>
         </nav>
     </header>
+
+    <!-- ==================== CONTENU PRINCIPAL ==================== -->
     <main>
+        <!-- Titre principal de la page, centré -->
         <h1 style="text-align: center; margin-bottom: 2rem;">Available Places</h1>
+        
+        <!-- Section du filtre par prix -->
         <section id="filter">
             <label for="price-filter">Max Price:</label>
             <select id="price-filter">
@@ -30,30 +38,53 @@
                 <option value="all">Tous</option>
             </select>
         </section>
-<section id="places-list">
-    <div id="error-message" style="display:none; color:#e63946; margin:10px 0;"></div>
-    <div class="place-card">
-         <img src="images/Chateau.png" alt="Chateau" class="place-img">
-        <h3>Chateau</h3>
-        <p>Price per night: $99</p>
-        <p>Horrible</p>
-        <p>Location: Lat. 60, Long. 10</p>
-        <a href="place.html?id=1" class="details-button">View Details</a>
-    </div>
-    <div class="place-card">
-        <img src="images/Manoir Flippant.png" alt="Manoir" class="place-img">
-        <h3>Manoir</h3>
-        <p>Price per night: $170</p>
-        <p>Glauque</p>
-        <p>Location: Lat. 50, Long. 50</p>
-        <a href="place.html?id=2" class="details-button">View Details</a>
-    </div>
-    <!-- Ajoute d'autres cards si besoin -->
-</section>
+
+        <!-- 
+            Section contenant toutes les cartes de lieux (cards).
+            Elle sera aussi manipulée dynamiquement par le JS.
+        -->
+        <section id="places-list">
+            <!-- Div dédiée pour l’affichage d’un éventuel message d’erreur -->
+            <div id="error-message" style="display:none; color:#e63946; margin:10px 0;"></div>
+
+            <!-- Exemple de carte d’un lieu disponible (sera remplacé/complété dynamiquement) -->
+            <div class="place-card">
+                <img src="images/Chateau.png" alt="Chateau" class="place-img">
+                <h3>Chateau</h3>
+                <p>Price per night: $99</p>
+                <p>Horrible</p>
+                <p>Location: Lat. 60, Long. 10</p>
+                <a href="place.html?id=1" class="details-button">View Details</a>
+            </div>
+
+            <div class="place-card">
+                <img src="images/Manoir Flippant.png" alt="Manoir" class="place-img">
+                <h3>Manoir</h3>
+                <p>Price per night: $170</p>
+                <p>Glauque</p>
+                <p>Location: Lat. 50, Long. 50</p>
+                <a href="place.html?id=2" class="details-button">View Details</a>
+            </div>
+            <!-- 
+                Tu peux ajouter ici d’autres cartes en dur,
+                mais normalement la liste sera générée dynamiquement par JavaScript 
+            -->
+        </section>
     </main>
+
+    <!-- ==================== SCRIPT PRINCIPAL ==================== -->
+    <!-- 
+        Inclusion du fichier JavaScript qui gère :
+        - L’authentification
+        - Les filtres
+        - Le chargement dynamique des lieux
+        - Les messages d’erreur, etc.
+    -->
     <script src="scripts.js"></script>
-<footer>
-    <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
-</footer>
+
+    <!-- ==================== PIED DE PAGE ==================== -->
+    <footer>
+        <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
+    </footer>
 </body>
 </html>

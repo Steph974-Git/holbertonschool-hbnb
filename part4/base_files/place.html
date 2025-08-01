@@ -1,41 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--
+        Métadonnées essentielles :
+        - Encodage UTF-8 pour le support de tous caractères.
+        - Viewport responsive pour mobile/tablette.
+        - Titre de la page (affiché dans l’onglet du navigateur).
+        - Feuille de style principale du site.
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Details</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="magic-bg-container">
-        <canvas id="shadow-bg"></canvas>
-    </div>
+    <!-- ================== HEADER / NAVIGATION ================== -->
     <header>
         <nav>
+            <!-- Logo, lien vers l’accueil -->
             <a href="index.html">
                 <img src="images/logo.png" alt="App Logo" class="logo">
             </a>
+            <!-- Lien Accueil -->
             <a href="index.html">Home</a>
+            <!-- Bouton Login (affiché/masqué selon authentification JS) -->
             <a href="login.html" id="login-link" class="login-button">Login</a>
         </nav>
     </header>
+
+    <!-- ================== CONTENU PRINCIPAL ================== -->
     <main>
-        <!-- Section dynamique pour les détails du lieu (remplie par JS) -->
+        <!--
+            Section qui accueillera dynamiquement les détails du lieu sélectionné.
+            Elle sera remplie par le JS après récupération des données depuis l’API.
+            Structure typique : image, nom, description, prix, propriétaire, etc.
+        -->
         <section id="place-details" class="place-details"></section>
 
-        <!-- Titre des reviews -->
+        <!--
+            Titre de la section reviews (affiché en haut des avis utilisateurs).
+            La classe "reviews-title" permet le stylage spécifique horreur.
+        -->
         <h3 id="reviews-title" class="reviews-title">Reviews</h3>
 
-        <!-- Section dynamique pour les reviews (remplie par JS) -->
+        <!--
+            Zone d’affichage dynamique des avis du lieu (remplie par JS).
+            Chaque review s'affichera dans une carte stylisée.
+        -->
         <div id="reviews-list"></div>
 
-        <!-- Section pour le formulaire d’avis, affichée seulement si connecté -->
+        <!--
+            Formulaire d’ajout d’avis (review), affiché uniquement si l’utilisateur est authentifié.
+            - JS rend visible cette section si le token est détecté.
+            - Les erreurs de l’API s’affichent dans la div #error-message.
+            - Les champs sont requis pour valider le formulaire.
+        -->
         <section id="add-review" style="display:none;">
             <h2>Ajouter un avis</h2>
+            <!-- Message d’erreur d’API ou de validation du formulaire, géré par JS -->
             <div id="error-message" style="display:none; color:#e63946; margin:10px 0;"></div>
             <form id="review-form" class="add-review form">
+                <!-- Champ texte pour le commentaire -->
                 <label for="comment">Commentaire :</label>
                 <textarea id="comment" name="comment" required></textarea>
+                <!-- Menu déroulant pour la note (rating) -->
                 <label for="rating">Note :</label>
                 <select id="rating" name="rating" required>
                     <option value="5">5/5</option>
@@ -44,13 +72,26 @@
                     <option value="2">2/5</option>
                     <option value="1">1/5</option>
                 </select>
+                <!-- Bouton de validation -->
                 <button type="submit">Envoyer</button>
             </form>
         </section>
     </main>
+
+    <!-- ================== SCRIPT PRINCIPAL ================== -->
+    <!--
+        scripts.js gère :
+        - Récupération des détails de la place et de ses reviews,
+        - Affichage dynamique,
+        - Gestion du formulaire d’ajout d’avis,
+        - Affichage d’erreurs,
+        - Authentification utilisateur.
+    -->
     <script src="scripts.js"></script>
-<footer>
-    <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
-</footer>
+
+    <!-- ================== FOOTER ================== -->
+    <footer>
+        <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
+    </footer>
 </body>
 </html>

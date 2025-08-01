@@ -1,42 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--
+        Encodage universel, responsive design et titre.
+        Lien vers la feuille de style principale (styles.css).
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Review</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="magic-bg-container">
-        <canvas id="shadow-bg"></canvas>
-    </div>
+    <!-- ================== HEADER / NAVIGATION ================== -->
     <header>
         <nav>
+            <!-- Logo du site : ramène à la page d’accueil -->
             <a href="index.html">
                 <img src="images/logo.png" alt="App Logo" class="logo">
             </a>
+            <!-- Bouton Login : redirige vers la page de connexion (affiché/masqué par JS si besoin) -->
             <a href="login.html" class="login-button">Login</a>
         </nav>
     </header>
+
+    <!-- ================== CONTENU PRINCIPAL ================== -->
     <main>
-        <!-- Add something to idfentify the place you're reviewing -->
+        <!--
+            Section centrale pour l’ajout d’un avis sur un lieu.
+            On peut y ajouter dynamiquement une indication sur le lieu ciblé (par JS ou une balise supplémentaire).
+            Classe "add-review" pour le style, id "add-review" pour les scripts.
+        -->
         <section id="add-review" class="add-review">
+            <!--
+                Div qui affiche les messages d’erreur lors de l’envoi du formulaire (gérée par JS).
+                S’affiche uniquement en cas d’erreur API ou de validation.
+            -->
             <div id="error-message" style="display:none; color:#e63946; margin:10px 0;"></div>
             <form id="review-form" class="form">
+                <!-- Titre du formulaire stylisé -->
                 <h2>Add a Review</h2>
+
+                <!-- Champ de saisie du commentaire de l’utilisateur -->
                 <label for="review">Your Review:</label>
                 <textarea id="review" name="review" required></textarea>
+
+                <!-- Sélection de la note : à remplir en JS si besoin -->
                 <label for="rating">Rating:</label>
                 <select id="rating" name="rating" required>
-                    <!-- Options for rating -->
+                    <!-- Options pour la note, à ajouter dynamiquement ou en HTML -->
                 </select>
+
+                <!-- Bouton d’envoi du formulaire -->
                 <button type="submit">Submit Review</button>
             </form>
         </section>
     </main>
+
+    <!-- ================== SCRIPT PRINCIPAL ================== -->
+    <!--
+        scripts.js :
+        - Vérifie l’authentification de l’utilisateur (redirection si besoin).
+        - Récupère dynamiquement l’id du lieu à reviewer (depuis l’URL).
+        - Gère l’envoi du formulaire (POST review à l’API).
+        - Affiche dynamiquement les erreurs dans #error-message.
+    -->
     <script src="scripts.js"></script>
-<footer>
-    <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
-</footer>
+
+    <!-- ================== FOOTER ================== -->
+    <footer>
+        <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
+    </footer>
 </body>
 </html>

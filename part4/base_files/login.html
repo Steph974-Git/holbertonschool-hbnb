@@ -1,44 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--
+        Définition du jeu de caractères (UTF-8) pour le support multilingue,
+        et configuration du viewport pour l'adaptabilité mobile.
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!--
+        Titre affiché dans l’onglet du navigateur.
+    -->
     <title>Login</title>
+
+    <!--
+        Inclusion de la feuille de style principale du projet.
+    -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="magic-bg-container">
-        <canvas id="shadow-bg"></canvas>
-    </div>
+    <!-- ================== HEADER ================== -->
     <header>
         <nav>
+            <!-- Logo, cliquable, ramène à l'accueil -->
             <a href="index.html">
                 <img src="images/logo.png" alt="App Logo" class="logo">
             </a>
+            <!-- Lien Accueil -->
             <a href="index.html">Home</a>
+            <!-- Bouton Login (affiché/masqué par JS selon connexion) -->
             <a href="login.html" class="login-button">Login</a>
         </nav>
     </header>
-    <!-- Screamer en dehors du form pour couvrir TOUT l'écran -->
+
+    <!-- ================== EFFET SCREAMER ================== -->
+    <!--
+        Le screamer bienvenue s'affiche en surimpression sur TOUTE la page au login réussi.
+        Il est géré par le JS + CSS (animation/fondu + son). 
+        On le place en dehors du <form> pour recouvrir tout le viewport.
+    -->
     <div id="screamer-welcome">Bienvenue !</div>
+
+    <!-- ================== CONTENU PRINCIPAL ================== -->
     <main>
+        <!--
+            Zone d’affichage d’éventuels messages d’erreur
+            (connexion échouée, mauvais mot de passe, problème API, etc).
+            Affiché/masqué par le JS.
+        -->
         <div id="error-message" style="display:none; color:#e63946; margin:10px 0;"></div>
+
+        <!--
+            Formulaire de connexion.
+            Géré en JS (login, validation, redirection).
+        -->
         <form id="login-form">
-            <!-- Plus de screamer-welcome ici -->
             <h2>Login</h2>
+
+            <!-- Champ email (obligatoire) -->
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             
+            <!-- Champ mot de passe (obligatoire) -->
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
             
+            <!-- Bouton de validation -->
             <button type="submit">Login</button>
         </form>
     </main>
+
+    <!-- ================== SCRIPT PRINCIPAL ================== -->
+    <!--
+        Le fichier JavaScript principal gère :
+        - L’envoi du formulaire,
+        - L’affichage du screamer,
+        - Les messages d’erreur,
+        - Le stockage du token de connexion,
+        - Et toutes les interactions dynamiques de la page.
+    -->
     <script src="scripts.js"></script>
+
+    <!-- ================== PIED DE PAGE ================== -->
     <footer>
         <p>&copy; 2024 HBnB Evolution. All rights reserved</p>
     </footer>
+
+    <!-- ================== AUDIO DU SCREAMER ================== -->
+    <!--
+        Son d’ambiance déclenché lors du screamer "Bienvenue !"
+        Peut être modifié pour plus d’immersion.
+    -->
     <audio id="scream-audio" src="sounds/Scary.wav"></audio>
 </body>
 </html>

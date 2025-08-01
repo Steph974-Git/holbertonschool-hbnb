@@ -324,23 +324,6 @@ img {
     100% { opacity: 0;   transform: scale(1.38); filter: blur(10px);}
 }
 
-/* --- Fond glauque et canvas d'ombres mouvantes --- */
-#magic-bg-container {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(ellipse at 50% 110%, #2b401a38 0px, #1a1c1e00 400px);
-    /* Ajoute une ambiance glauque verdâtre par dessous */
-}
-#shadow-bg {
-    width: 100vw;
-    height: 100vh;
-    display: block;
-}
-
 /* --- Message d'erreur API ou formulaire --- */
 #error-message {
     display: none;

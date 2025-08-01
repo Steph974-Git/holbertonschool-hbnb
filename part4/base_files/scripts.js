@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         document.cookie = `token=${data.access_token}; path=/`;
                         window.location.href = 'index.html';
                     } else {
-                        alert('Login failed: ' + response.statusText);
+                        await showApiError(response, "Erreur lors de la connexion.");
                     }
                 }
             }, 3500); // Idem ici, égal à la durée de l'animation
@@ -95,13 +95,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (reviewForm && placeId && token) {
         reviewForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Empêche le rechargement et l'ajout à l'URL
+            event.preventDefault();
 
-            const comment = document.getElementById('comment').value;
+            // Récupère la valeur du textarea selon l'id disponible (review ou comment)
+            let comment = '';
+            const reviewTextarea = document.getElementById('review');
+            const commentTextarea = document.getElementById('comment');
+            if (reviewTextarea) comment = reviewTextarea.value;
+            if (commentTextarea) comment = commentTextarea.value;
+
             const rating = document.getElementById('rating').value;
 
             try {
-                // Envoie la review à l'API
                 const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/`, {
                     method: 'POST',
                     headers: {
@@ -117,13 +122,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     alert('Avis ajouté avec succès !');
                     reviewForm.reset();
-                    // Recharge les reviews après ajout
                     await fetchPlaceDetails(token, placeId);
                 } else {
-                    alert('Erreur lors de l\'ajout de l\'avis.');
+                    await showApiError(response, "Erreur lors de l'ajout de l'avis.");
                 }
             } catch (error) {
-                alert('Erreur réseau.');
+                await showApiError({json: async () => ({message: "Erreur réseau."})});
             }
         });
     }
@@ -176,10 +180,7 @@ async function fetchPlaces(token) {
         window.allPlaces = places;
         displayPlaces(places);
     } else {
-        const placesList = document.getElementById('places-list');
-        if (placesList) {
-            placesList.innerHTML = '<p>Failed to load places.</p>';
-        }
+        await showApiError(response, "Impossible de charger les lieux.");
     }
 }
 
@@ -441,3 +442,30 @@ function animateShadow(time) {
   requestAnimationFrame(animateShadow);
 }
 animateShadow(0);
+
+/**
+ * Affiche une alerte avec le message d’erreur venant de l’API,
+ * ou un message par défaut si pas trouvé.
+ * Peut être amélioré pour afficher dans le DOM si tu préfères.
+ */
+async function showApiError(response, defaultMsg = "Erreur lors de l’opération.") {
+    let errorMsg = defaultMsg;
+    try {
+        const data = await response.json();
+        if (data && (data.message || data.error || data.detail)) {
+            errorMsg = data.message || data.error || data.detail;
+        }
+    } catch (e) {console.log("showApiError CATCH", e); // <- TEST
+        }
+
+    // Affiche dans la div (si elle existe)
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+        errorDiv.textContent = errorMsg;
+        errorDiv.style.display = 'block';
+        // Efface après 5 secondes
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+}

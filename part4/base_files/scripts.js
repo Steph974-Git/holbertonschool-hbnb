@@ -16,46 +16,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            // Joue le son de screamer si présent
-            if (screamAudio) {
-                screamAudio.currentTime = 0;
-                screamAudio.play();
-            }
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-            // Affiche l'effet "Bienvenue !" fantomatique si présent
-            if (screamerWelcome) {
-                screamerWelcome.style.display = 'flex';
-                screamerWelcome.classList.add('show');
-
-                // Supprime la classe show et masque après l'animation CSS
-                setTimeout(() => {
-                    screamerWelcome.classList.remove('show');
-                    screamerWelcome.style.display = 'none';
-                }, 3500); // Même durée que l'animation CSS !
-            }
-
-            // Démarre le login après l'animation + petit délai
-            setTimeout(async () => {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                await loginUser(email, password);
-
-                // Fonction de login utilisateur
-                async function loginUser(email, password) {
+            // Fonction de login utilisateur
+            async function loginUser(email, password) {
+                try {
                     const response = await fetch('http://127.0.0.1:5000/api/v1/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password })
                     });
+                    
                     if (response.ok) {
                         const data = await response.json();
                         document.cookie = `token=${data.access_token}; path=/`;
-                        window.location.href = 'index.html';
+                        
+                        // LOGIN RÉUSSI : Maintenant on joue le screamer + son
+                        
+                        // 1. Joue le son de screamer si présent
+                        if (screamAudio) {
+                            screamAudio.currentTime = 0;
+                            screamAudio.play();
+                        }
+
+                        // 2. Affiche l'effet "Bienvenue !" fantomatique si présent
+                        if (screamerWelcome) {
+                            screamerWelcome.style.display = 'flex';
+                            screamerWelcome.classList.add('show');
+
+                            // Supprime la classe show et masque après l'animation CSS
+                            setTimeout(() => {
+                                screamerWelcome.classList.remove('show');
+                                screamerWelcome.style.display = 'none';
+                            }, 3500); // Même durée que l'animation CSS !
+                        }
+
+                        // 3. Redirige vers index.html après l'animation
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 3500);
+
                     } else {
+                        //  LOGIN ÉCHOUÉ : Pas de screamer, juste l'erreur
                         await showApiError(response, "Erreur lors de la connexion.");
                     }
+                } catch (error) {
+                    //  ERREUR RÉSEAU : Pas de screamer, juste l'erreur
+                    await showApiError({json: async () => ({message: "Erreur réseau."})});
                 }
-            }, 3500); // Idem ici, égal à la durée de l'animation
+            }
+
+            // Lance directement le login (plus de screamer avant)
+            await loginUser(email, password);
         });
     }
 
